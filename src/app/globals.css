@@ -398,4 +398,32 @@ h1, h2, h3, h4, h5, h6 {
   stroke-width: 1.2px !important;
 }
 
+/* Skip link, sustainability action, and staffing percent label utility classes */
+.skip-link {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: hsl(var(--surface-3));
+  color: hsl(var(--foreground));
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid hsl(var(--border));
+  z-index: 99999;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.btn-sus-action {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.staffing-pct-label {
+  text-align: right;
+  font-size: 0.75rem;
+  color: hsl(var(--foreground-subtle));
+  margin-top: 0.25rem;
+}
+
 

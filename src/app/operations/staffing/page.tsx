@@ -121,7 +121,7 @@ export default function StaffingPage() {
                       style={{ background: pct >= 90 ? "hsl(152,70%,50%)" : pct >= 70 ? "hsl(42,95%,58%)" : "hsl(0,84%,60%)" }}
                     />
                   </div>
-                  <div style={{ textAlign: "right", fontSize: "0.75rem", color: "hsl(var(--foreground-subtle))", marginTop: "0.25rem" }}>{pct}%</div>
+                  <div className="staffing-pct-label">{pct}%</div>
                 </div>
               );
             })}

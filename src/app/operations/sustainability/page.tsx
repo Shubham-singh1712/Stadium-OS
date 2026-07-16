@@ -175,8 +175,7 @@ export default function SustainabilityPage() {
               <div className="sus-rec-footer">
                 <span className="sus-rec-impact">{rec.impact}</span>
                 <button 
-                  className="btn btn-success" 
-                  style={{ padding: "0.3rem 0.75rem", fontSize: "0.8125rem" }} 
+                  className="btn btn-success btn-sus-action" 
                   onClick={() => {
                     if (rec.action === "Activate") {
                       activateGreenMenu();

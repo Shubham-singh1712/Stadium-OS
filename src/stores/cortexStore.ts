@@ -697,7 +697,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
 
       // If active protocol is in success state, automatically clear it after a short delay
       // but let it live for one tick cycle first.
-      let activeProtocol = state.activeProtocol;
+      const activeProtocol = state.activeProtocol;
       if (activeProtocol && activeProtocol.status === "success") {
         // Keep it in success state so UI has time to display checkmark,
         // but let's clear it if the user reloads or on long periods.

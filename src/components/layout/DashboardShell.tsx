@@ -19,21 +19,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
     <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <a 
         href="#main-content" 
-        style={{
-          position: "absolute",
-          top: "1rem",
-          left: "1rem",
-          background: "hsl(var(--surface-3))",
-          color: "hsl(var(--foreground))",
-          padding: "0.5rem 1rem",
-          borderRadius: "var(--radius-sm)",
-          border: "1px solid hsl(var(--border))",
-          zIndex: 99999,
-          textDecoration: "none",
-          fontSize: "0.875rem",
-          fontWeight: 600,
-        }}
-        className="sr-only focus:not-sr-only"
+        className="skip-link sr-only focus:not-sr-only"
       >
         Skip to main content
       </a>

@@ -38,7 +38,7 @@ const DEMO_USERS: Record<UserRole, User> = {
   },
 };
 
-export const useAuthStore = create<AuthState>()((set, get) => ({
+export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
   isAuthenticated: false,
   setUser: (user) => {
