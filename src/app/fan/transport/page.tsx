@@ -1,6 +1,7 @@
 "use client";
 
 import { useCortexStore } from "@/stores/cortexStore";
+import { useAuthStore } from "@/stores/authStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -20,6 +21,10 @@ export default function TransportPage() {
   const transport = useCortexStore((state) => state.transport);
   const pathname = usePathname();
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+
+  const userName = user?.name ? user.name.split(" ")[0] : "Alex";
+  const userSector = user?.sector ?? "Section 112, Row G, Seat 14";
 
   const recommendedTransport = transport.find((t) => t.recommended);
 
@@ -27,9 +32,9 @@ export default function TransportPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Welcome, Alex!</h1>
+        <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Welcome, {userName}!</h2>
         <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
-          Your seat: Section 112, Row G, Seat 14 · USA 🇺🇸 vs BRA 🇧🇷 · 73′
+          Your seat: {userSector} · USA 🇺🇸 vs BRA 🇧🇷 · 73′
         </p>
       </div>
 

@@ -65,7 +65,7 @@ interface SidebarProps {
   setSimulatorOpen: (open: boolean) => void;
 }
 
-export function Sidebar({ sidebarOpen, setSidebarOpen, simulatorOpen, setSimulatorOpen }: SidebarProps) {
+export function SidebarNav({ sidebarOpen, setSidebarOpen, simulatorOpen, setSimulatorOpen }: SidebarProps) {
   const user = useAuthStore((state) => state.user);
   const pathname = usePathname();
 

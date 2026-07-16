@@ -71,9 +71,9 @@ export default function OperationsPage() {
       {/* Page header */}
       <motion.div variants={fadeUp} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "0.25rem" }}>
+          <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "0.25rem" }}>
             Command Center
-          </h1>
+          </h2>
           <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
             FIFA World Cup 2026 — Semi-Final · Stadium AI Prime
           </p>

@@ -40,7 +40,6 @@ export function MetricCard({
       style={{ height: "100%" }}
       role="region"
       aria-label={`${label} metric: ${value}${unit || ""}`}
-      tabIndex={0}
     >
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "1rem" }}>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCortexStore } from "@/stores/cortexStore";
+import { useAuthStore } from "@/stores/authStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -9,14 +10,20 @@ import { usePathname, useRouter } from "next/navigation";
 export default function FanPage() {
   const pathname = usePathname();
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+  
+  const userName = user?.name ? user.name.split(" ")[0] : "Alex";
+  const userSector = user?.sector ?? "Section 112, Row G, Seat 14";
+  const seatSection = userSector.split(",")[0] || "Section 112";
+  const seatDetails = userSector.split(",").slice(1).join(" · ") || "Row G · Seat 14 · Level 1";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Welcome, Alex!</h1>
+        <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Welcome, {userName}!</h2>
         <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
-          Your seat: Section 112, Row G, Seat 14 · USA 🇺🇸 vs BRA 🇧🇷 · 73′
+          Your seat: {userSector} · USA 🇺🇸 vs BRA 🇧🇷 · 73′
         </p>
       </div>
 
@@ -41,12 +48,12 @@ export default function FanPage() {
           <div className="glass-card">
             <div style={{ fontSize: "1.5rem", marginBottom: "0.75rem" }}>💺</div>
             <h3 style={{ fontWeight: 700, marginBottom: "0.25rem" }}>Your Seat</h3>
-            <p style={{ fontSize: "1.5rem", fontWeight: 800, color: "hsl(var(--accent-blue))", marginBottom: "0.5rem" }}>Section 112</p>
-            <p style={{ fontSize: "0.875rem", color: "hsl(var(--foreground-muted))", marginBottom: "0.75rem" }}>Row G · Seat 14 · Level 1</p>
+            <p style={{ fontSize: "1.5rem", fontWeight: 800, color: "hsl(var(--accent-blue))", marginBottom: "0.5rem" }}>{seatSection}</p>
+            <p style={{ fontSize: "0.875rem", color: "hsl(var(--foreground-muted))", marginBottom: "0.75rem" }}>{seatDetails}</p>
             <p style={{ fontSize: "0.8125rem", color: "hsl(var(--foreground-subtle))", marginBottom: "1rem" }}>
               ✦ Nearest restroom: 45m north · Nearest food: Food Court B (200m east)
             </p>
-            <Link href="/fan/navigation?target=My Seat (112-G-14)&generate=true" className="btn btn-primary" style={{ display: "flex", width: "100%", justifyContent: "center", textDecoration: "none" }}>
+            <Link href={`/fan/navigation?target=My Seat (${seatSection.replace("Section ", "")})&generate=true`} className="btn btn-primary" style={{ display: "flex", width: "100%", justifyContent: "center", textDecoration: "none" }}>
               Navigate Me →
             </Link>
           </div>

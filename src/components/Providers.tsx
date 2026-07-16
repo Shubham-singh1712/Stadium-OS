@@ -34,10 +34,14 @@ function SessionInitializer() {
       .then((res) => res.json())
       .then((data) => {
         if (data.user) {
-          useAuthStore.setState({ user: data.user, isAuthenticated: true });
+          useAuthStore.setState({ user: data.user, isAuthenticated: true, isHydrating: false });
+        } else {
+          useAuthStore.setState({ isHydrating: false });
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        useAuthStore.setState({ isHydrating: false });
+      });
   }, [setUser]);
   return null;
 }

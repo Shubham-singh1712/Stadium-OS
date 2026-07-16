@@ -17,7 +17,7 @@ export default function SecurityRoutingPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-      <h1 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Emergency Routing</h1>
+      <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Emergency Routing</h2>
 
       <CortexCard
         severity="critical"

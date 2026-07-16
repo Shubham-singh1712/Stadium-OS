@@ -26,7 +26,7 @@ interface HeaderProps {
   setRoleMenuOpen: (open: boolean) => void;
 }
 
-export function Header({ roleMenuOpen, setRoleMenuOpen }: HeaderProps) {
+export function HeaderBar({ roleMenuOpen, setRoleMenuOpen }: HeaderProps) {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const alerts = useCortexStore((state) => state.alerts);

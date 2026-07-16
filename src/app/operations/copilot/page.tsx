@@ -111,7 +111,7 @@ export default function CopilotPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>AI Operations Copilot</h1>
+          <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>AI Operations Copilot</h2>
           <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>Cortex AI · Full stadium situational awareness</p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>

@@ -260,7 +260,7 @@ export default function FanInterpreterPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>🗣️ Cortex AI Live Interpreter</h1>
+        <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>🗣️ Cortex AI Live Interpreter</h2>
         <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
           Real-time multilingual interpreter companion for World Cup attendees.
         </p>

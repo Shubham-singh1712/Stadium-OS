@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import React from "react";
 import OperationsPage from "../app/operations/page";
 import SecurityPage from "../app/security/page";
 import VolunteerIncidentsPage from "../app/volunteer/incidents/page";
 import FanEmergencyPage from "../app/fan/emergency/page";
 import TranslatePage from "../app/volunteer/translate/page";
-import { Header } from "../components/layout/shell/Header";
-import { Sidebar } from "../components/layout/shell/Sidebar";
+import { HeaderBar as Header } from "../components/layout/HeaderBar";
+import { SidebarNav as Sidebar } from "../components/layout/SidebarNav";
 import { toast } from "sonner";
 
 // Mock Next.js navigation hooks
@@ -185,6 +185,7 @@ describe("Page Integration & Dashboard Form Actions", () => {
 
   describe("Translation Speech & Select", () => {
     it("should render voice controls and selected language translations correctly", () => {
+      vi.useFakeTimers();
       render(<TranslatePage />);
 
       const speechText = screen.getByLabelText("Fan says (English):") as HTMLTextAreaElement;
@@ -195,7 +196,12 @@ describe("Page Integration & Dashboard Form Actions", () => {
       fireEvent.change(langSelect, { target: { value: "Spanish" } });
       fireEvent.click(translateBtn);
 
-      expect(translateBtn).toBeDefined();
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(screen.getByText(/¿Dónde está el baño\?/)).toBeDefined();
+      vi.useRealTimers();
     });
   });
 

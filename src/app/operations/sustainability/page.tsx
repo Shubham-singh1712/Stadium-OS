@@ -40,7 +40,7 @@ export default function SustainabilityPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Sustainability Center</h1>
+          <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Sustainability Center</h2>
           <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>AI Score: {s.aiScore}/100 · Trend: {s.trend === "improving" ? "📈 Improving" : s.trend === "neutral" ? "➡ Stable" : "📉 Worsening"}</p>
         </div>
         <div style={{

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCortexStore } from "@/stores/cortexStore";
+import { useAuthStore } from "@/stores/authStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
 import dynamic from "next/dynamic";
 const StadiumMap = dynamic(() => import("@/components/stadium/StadiumMap").then((m) => m.StadiumMap), {
@@ -29,6 +30,10 @@ function NavigationContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const zones = useCortexStore((state) => state.zones);
+  const user = useAuthStore((state) => state.user);
+
+  const userName = user?.name ? user.name.split(" ")[0] : "Alex";
+  const userSector = user?.sector ?? "Section 112, Row G, Seat 14";
 
   const [navTarget, setNavTarget] = useState("Gate A");
   const [routeGenerated, setRouteGenerated] = useState(false);
@@ -97,9 +102,9 @@ function NavigationContent() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Welcome, Alex!</h1>
+          <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Welcome, {userName}!</h2>
           <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
-            Section 112 · Row G · Seat 14 &nbsp;·&nbsp; USA 🇺🇸 vs BRA 🇧🇷 &nbsp;·&nbsp; 73′
+            {userSector.split(",").join(" · ")} &nbsp;·&nbsp; USA 🇺🇸 vs BRA 🇧🇷 &nbsp;·&nbsp; 73′
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>

@@ -56,9 +56,12 @@ export async function POST(req: Request) {
 
     if (role && DEMO_USERS[role]) {
       user = DEMO_USERS[role];
-    }
-
-    if (!user) {
+    } else if (user && user.role && DEMO_USERS[user.role]) {
+      const demoUser = DEMO_USERS[user.role];
+      if (user.id !== demoUser.id || user.name !== demoUser.name) {
+        return NextResponse.json({ error: "Unauthorized user credentials" }, { status: 403 });
+      }
+    } else {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
     }
 

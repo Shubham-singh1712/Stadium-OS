@@ -252,8 +252,10 @@ export function RolePortal({ onHoverChange }: RolePortalProps) {
                 onMouseEnter={() => setHoveredRole(portal.role)}
                 onMouseMove={(e) => handlePortalMouseMove(portal.role, e)}
                 onMouseLeave={() => handlePortalMouseLeave(portal.role)}
+                onFocus={() => setHoveredRole(portal.role)}
+                onBlur={() => handlePortalMouseLeave(portal.role)}
                 onClick={() => handleSelectRole(portal.role)}
-                className="absolute flex flex-col items-center justify-center p-4 cursor-pointer outline-none select-none overflow-hidden transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+                className="absolute flex flex-col items-center justify-center p-4 cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#01040a] outline-none select-none overflow-hidden transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
                 style={{
                   boxShadow: isActive
                     ? `0 16px 40px rgba(${portal.rgb}, 0.24)`

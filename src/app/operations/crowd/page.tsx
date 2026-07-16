@@ -18,7 +18,7 @@ export default function CrowdIntelPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
       <div>
-        <h1 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Crowd Intelligence</h1>
+        <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Crowd Intelligence</h2>
         <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
           {crowd.prediction}
         </p>
@@ -146,7 +146,12 @@ export default function CrowdIntelPage() {
               <Tooltip contentStyle={{ background: "hsl(var(--surface-2))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(v) => [`${v}%`, "Occupancy"]} />
               <Bar dataKey="pct" name="Occupancy" radius={[4, 4, 0, 0]}>
                 {zones.slice(0, 8).map((zone) => (
-                  <rect key={zone.id} fill={zone.status === "red" ? "hsl(0,84%,55%)" : zone.status === "yellow" ? "hsl(42,95%,52%)" : "hsl(152,70%,45%)"} />
+                  <rect 
+                    key={zone.id} 
+                    fill={zone.status === "red" ? "hsl(0,84%,55%)" : zone.status === "yellow" ? "hsl(42,95%,52%)" : "hsl(152,70%,45%)"} 
+                    role="img"
+                    aria-label={`${zone.name} occupancy: ${Math.round((zone.current / zone.capacity) * 100)}%`}
+                  />
                 ))}
               </Bar>
             </BarChart>

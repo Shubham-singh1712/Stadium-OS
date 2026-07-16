@@ -9,7 +9,7 @@ interface SimulatorPanelProps {
   setSimulatorOpen: (open: boolean) => void;
 }
 
-export function SimulatorPanel({ simulatorOpen, setSimulatorOpen }: SimulatorPanelProps) {
+export function SimulatorControls({ simulatorOpen, setSimulatorOpen }: SimulatorPanelProps) {
   const triggerSimulationScenario = useCortexStore((state) => state.triggerSimulationScenario);
   const isSimulating = useCortexStore((state) => state.isSimulating);
 

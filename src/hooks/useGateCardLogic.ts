@@ -30,6 +30,7 @@ export function useGateCardLogic(zone: StadiumZone, actionType: "redirect" | "mo
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const telemetryIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Smoothly animate percentage value
   useEffect(() => {
@@ -101,7 +102,7 @@ export function useGateCardLogic(zone: StadiumZone, actionType: "redirect" | "mo
         if (currentProgress >= 100) {
           clearInterval(interval);
           setProtocolStatus("executing", 100);
-          setTimeout(() => {
+          transitionTimeoutRef.current = setTimeout(() => {
             setProtocolStatus("verifying");
           }, 300);
         } else {
@@ -114,6 +115,7 @@ export function useGateCardLogic(zone: StadiumZone, actionType: "redirect" | "mo
     }
     return () => {
       if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
     };
   }, [workflowStep, execProgress, setProtocolStatus]);
 

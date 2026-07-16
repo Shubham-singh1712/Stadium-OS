@@ -16,13 +16,28 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+import { cookies } from "next/headers";
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const sessionUser = cookieStore.get("session_user")?.value;
+  let lang = "en";
+
+  if (sessionUser) {
+    try {
+      const user = JSON.parse(sessionUser);
+      if (user.language) {
+        lang = user.language;
+      }
+    } catch (e) {}
+  }
+
   return (
-    <html lang="en" className="dark">
+    <html lang={lang} className="dark">
       <body>
         <Providers>{children}</Providers>
         <Toaster theme="dark" position="top-right" richColors />

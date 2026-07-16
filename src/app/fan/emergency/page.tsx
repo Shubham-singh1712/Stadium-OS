@@ -41,9 +41,9 @@ export default function EmergencyPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>
+        <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>
           Welcome, {userName}!
-        </h1>
+        </h2>
         <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
           Your seat: {userSector} · USA 🇺🇸 vs BRA 🇧🇷
         </p>

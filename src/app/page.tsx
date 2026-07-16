@@ -49,8 +49,10 @@ export default function HomePage() {
   }, [cursorX, cursorY, mouseX, mouseY]);
 
   // Background Parallax Offsets
-  const bgXVal = shouldReduceMotion ? 0 : useTransform(mouseXSpring, [-0.5, 0.5], [12, -12]);
-  const bgYVal = shouldReduceMotion ? 0 : useTransform(mouseYSpring, [-0.5, 0.5], [12, -12]);
+  const transformX = useTransform(mouseXSpring, [-0.5, 0.5], [12, -12]);
+  const transformY = useTransform(mouseYSpring, [-0.5, 0.5], [12, -12]);
+  const bgXVal = shouldReduceMotion ? 0 : transformX;
+  const bgYVal = shouldReduceMotion ? 0 : transformY;
 
   const isAnyHovered = hoveredRole !== null;
 

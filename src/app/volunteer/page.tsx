@@ -29,7 +29,7 @@ export default function VolunteerPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Volunteer Hub</h1>
+          <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Volunteer Hub</h2>
           <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
             Sara Mitchell · Badge VOL-2026-4421 · East Wing
           </p>

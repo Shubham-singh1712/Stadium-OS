@@ -17,7 +17,7 @@ export default function VendorsPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Vendor Analytics</h1>
+          <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Vendor Analytics</h2>
           <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
             Total revenue: <span style={{ color: "hsl(var(--accent-green))", fontWeight: 700 }}>${(totalRevenue / 1000).toFixed(1)}K</span> · {vendors.length} active vendors
           </p>

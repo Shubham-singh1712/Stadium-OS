@@ -4,9 +4,11 @@ import type { User, UserRole } from "@/types";
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  isHydrating: boolean;
   setUser: (user: User) => void;
   setRole: (role: UserRole) => void;
   logout: () => void;
+  setHydrating: (state: boolean) => void;
 }
 
 const DEMO_USERS: Record<UserRole, User> = {
@@ -41,6 +43,8 @@ const DEMO_USERS: Record<UserRole, User> = {
 export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
   isAuthenticated: false,
+  isHydrating: true,
+  setHydrating: (state) => set({ isHydrating: state }),
   setUser: (user) => {
     set({ user, isAuthenticated: true });
     if (typeof window !== "undefined") {
@@ -52,9 +56,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
     }
   },
   setRole: (role) => {
-    // Synchronously set placeholder user for test and initial page load speed
-    const user = DEMO_USERS[role];
-    set({ user, isAuthenticated: true });
+    // Avoid synchronous placeholder state to prevent wrong role flashes
+    // Instead, immediately rely on hydration sync
+    set({ isHydrating: true });
 
     if (typeof window !== "undefined") {
       fetch("/api/auth/session", {
@@ -65,10 +69,14 @@ export const useAuthStore = create<AuthState>()((set) => ({
         .then((res) => res.json())
         .then((data) => {
           if (data.user) {
-            set({ user: data.user, isAuthenticated: true });
+            set({ user: data.user, isAuthenticated: true, isHydrating: false });
+          } else {
+            set({ isHydrating: false });
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          set({ isHydrating: false });
+        });
     }
   },
   logout: () => {

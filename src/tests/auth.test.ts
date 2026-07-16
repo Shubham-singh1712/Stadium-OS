@@ -34,7 +34,7 @@ describe("Auth Store State Machine", () => {
     useAuthStore.getState().setRole("security");
 
     const state = useAuthStore.getState();
-    expect(state.user?.role).toBe("security");
+    expect(state.isHydrating).toBe(true);
   });
 
   it("should logout successfully", () => {
