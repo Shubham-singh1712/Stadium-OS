@@ -8,6 +8,7 @@ import FanEmergencyPage from "../app/fan/emergency/page";
 import TranslatePage from "../app/volunteer/translate/page";
 import { Header } from "../components/layout/shell/Header";
 import { Sidebar } from "../components/layout/shell/Sidebar";
+import { toast } from "sonner";
 
 // Mock Next.js navigation hooks
 vi.mock("next/navigation", () => ({
@@ -16,6 +17,14 @@ vi.mock("next/navigation", () => ({
     replace: vi.fn(),
   }),
   usePathname: () => "/operations",
+}));
+
+// Mock sonner toast library
+vi.mock("sonner", () => ({
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+  },
 }));
 
 // Mock Zustand store state
@@ -148,6 +157,18 @@ describe("Page Integration & Dashboard Form Actions", () => {
   });
 
   describe("Fan Emergency SOS Dispatch", () => {
+    it("should reject submission with empty incident details and show validation error", () => {
+      render(<FanEmergencyPage />);
+      const dispatchBtn = screen.getByText("🚨 Dispatch Help Now");
+
+      fireEvent.click(dispatchBtn);
+
+      // Should call toast.error
+      expect(toast.error).toHaveBeenCalledWith("Please describe the incident.");
+      // SOS Broadcasted should not be rendered
+      expect(screen.queryByText("SOS Broadcasted")).toBeNull();
+    });
+
     it("should accept incident details and dispatch help request", () => {
       render(<FanEmergencyPage />);
 

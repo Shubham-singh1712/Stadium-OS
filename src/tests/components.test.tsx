@@ -55,6 +55,27 @@ describe("Core UI Components", () => {
       fireEvent.click(btn);
       expect(mockClick).toHaveBeenCalledOnce();
     });
+
+    it("should render correctly with different severity levels and without actions", () => {
+      const { rerender } = render(
+        <CortexCard
+          title="Eco target met"
+          insight="Stadium carbon offset exceeded"
+          severity="success"
+        />
+      );
+      expect(screen.getByText("Eco target met")).toBeDefined();
+      expect(screen.getByText("Stadium carbon offset exceeded")).toBeDefined();
+
+      rerender(
+        <CortexCard
+          title="Fatal sensor outage"
+          insight="Sensor network offline"
+          severity="critical"
+        />
+      );
+      expect(screen.getByText("Fatal sensor outage")).toBeDefined();
+    });
   });
 
   describe("MetricCard Component", () => {
@@ -140,6 +161,26 @@ describe("Core UI Components", () => {
       // Simulate Space key
       fireEvent.keyDown(nodeButton, { key: " ", code: "Space" });
       expect(mockClick).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("StadiumMap Mouse Clicks", () => {
+    it("should trigger node click handler when a zone is clicked", () => {
+      const mockClick = vi.fn();
+      render(
+        <StadiumMap
+          role="fan"
+          target="Gate A"
+          active={true}
+          onNodeClick={mockClick}
+        />
+      );
+
+      const nodeButton = screen.getByLabelText("Stadium Zone: Gate A");
+      expect(nodeButton).toBeDefined();
+
+      fireEvent.click(nodeButton);
+      expect(mockClick).toHaveBeenCalledWith("Gate A");
     });
   });
 });
