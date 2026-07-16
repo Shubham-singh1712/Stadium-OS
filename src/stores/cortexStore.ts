@@ -416,7 +416,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
               ...z, 
               current: 1940, 
               status: "red", 
-              aiRecommendation: "✦ Cortex Recommendation: Protocol Delta-2 (Crowd Redistribution)\n- **Reason**: Excitement exit surge after USA goal.\n- **Evidence**: Spectator flow at turnstile turnstiles spikes to 420/min.\n- **Prediction**: Bottleneck critical overflow in ~3 minutes.\n- **Confidence**: 94%\n- **Expected Impact**: Divert 25% of spectators to Gate C.\n- **Risk**: Marginal queues increase at Gate C lanes.\n- **ETA**: 3 minutes.\n- **Affected Roles**: Command Center, Volunteers, Security.\n- **Rollback Plan**: Deactivate redirection." 
+              aiRecommendation: "✦ Cortex Recommendation: Protocol Delta-2 (Crowd Redistribution)\n- **Reason**: Excitement exit surge after USA goal.\n- **Evidence**: Spectator flow at turnstile turnstiles spikes to 420/min.\n- **Prediction**: Bottleneck critical overflow in ~3 minutes.\n- **Confidence**: 94%\n- **Expected Impact**: Divert 25% of spectators to Gate C.\n- **Risk**: Marginal queues increase at Gate C lanes.\n- **ETA**: 3 minutes.\n- **Affected Roles**: Command Center, Volunteers, Security.\n- **Alternative Strategy**: Redirect spectators to Gate B (adds 5 minutes of walking distance but utilizes uncrowded south path).\n- **Rollback Plan**: Deactivate redirection." 
             } : z);
             crowd = { ...crowd, riskScore: 89, riskLevel: "Critical" };
             
@@ -473,6 +473,11 @@ export const useCortexStore = create<CortexState>((set, get) => ({
               { id, timestamp: new Date(), category: "Cortex AI", message: "Recommendation: Protocol Nova-5 (Transport Optimization) suggested to direct shuttles.", severity: "info" },
               ...timelineEvents
             ];
+            zones = zones.map(z => z.id === "gate-c" ? { 
+              ...z, 
+              status: "yellow", 
+              aiRecommendation: "✦ Cortex Recommendation: Protocol Nova-5 (Transport Optimization)\n- **Reason**: Metro Line 2 direct service delayed by 15 mins.\n- **Evidence**: Metro East crowding reaches warning threshold.\n- **Prediction**: Platform bottlenecks within 10 minutes.\n- **Confidence**: 92%\n- **Expected Impact**: Deploy auxiliary shuttle buses to route spectators to alternative train hubs.\n- **Risk**: Minor vehicular routing delay on access ring-road.\n- **ETA**: 10 minutes.\n- **Affected Roles**: Transport Ops, Volunteers, Security.\n- **Alternative Strategy**: Redirect passengers to rideshare pickup zone A (10 minute walk).\n- **Rollback Plan**: Recall auxiliary shuttle buses." 
+            } : z);
             activeScenario = { ...activeScenario, stage: 2.5 };
             if (!state.scenarioStageHeldAt) {
               setTimeout(() => {
@@ -519,7 +524,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
               ...z,
               status: "yellow",
               current: 1580,
-              aiRecommendation: "✦ Cortex Recommendation: Protocol Atlas-3 (Capacity Expansion)\n- **Reason**: Spectator relocation due to lightning storm.\n- **Evidence**: Covered exit corridor density reaches 94%.\n- **Prediction**: Severe egress congestion in next 5 minutes.\n- **Confidence**: 91%\n- **Expected Impact**: Opens lane 4; increases Gate C capacity limits by +500.\n- **Risk**: Increased volunteer guide deployment complexity.\n- **ETA**: 5 minutes.\n- **Affected Roles**: Security, Volunteers.\n- **Rollback Plan**: Restore standard lanes config."
+              aiRecommendation: "✦ Cortex Recommendation: Protocol Atlas-3 (Capacity Expansion)\n- **Reason**: Spectator relocation due to lightning storm.\n- **Evidence**: Covered exit corridor density reaches 94%.\n- **Prediction**: Severe egress congestion in next 5 minutes.\n- **Confidence**: 91%\n- **Expected Impact**: Opens lane 4; increases Gate C capacity limits by +500.\n- **Risk**: Increased volunteer guide deployment complexity.\n- **ETA**: 5 minutes.\n- **Affected Roles**: Security, Volunteers.\n- **Alternative Strategy**: Hold spectators in covered concourses and delay egress until lightning warning clears.\n- **Rollback Plan**: Restore standard lanes config."
             } : z);
             activeScenario = { ...activeScenario, stage: 2.5 };
             if (!state.scenarioStageHeldAt) {
@@ -565,7 +570,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
             zones = zones.map(z => z.id === "medical-2" ? {
               ...z,
               status: "red",
-              aiRecommendation: "✦ Cortex Recommendation: Medical Dispatch\n- **Reason**: Heat stroke risk from high temperature.\n- **Evidence**: Wearable diagnostics flag body temp > 34C.\n- **Prediction**: Critical vital drop in ~2 minutes.\n- **Confidence**: 96%\n- **Expected Impact**: Deploy volunteer with hydration to Sector F.\n- **Risk**: Sector F guides decrease.\n- **ETA**: 2 minutes.\n- **Affected Roles**: Volunteers, Security, Medical.\n- **Rollback Plan**: Recall medical dispatcher if false alert."
+              aiRecommendation: "✦ Cortex Recommendation: Medical Dispatch\n- **Reason**: Heat stroke risk from high temperature.\n- **Evidence**: Wearable diagnostics flag body temp > 34C.\n- **Prediction**: Critical vital drop in ~2 minutes.\n- **Confidence**: 96%\n- **Expected Impact**: Deploy volunteer with hydration to Sector F.\n- **Risk**: Sector F guides decrease.\n- **ETA**: 2 minutes.\n- **Affected Roles**: Volunteers, Security, Medical.\n- **Alternative Strategy**: Guide the fan to the nearest air-conditioned fan zone (requires walking 50m).\n- **Rollback Plan**: Recall medical dispatcher if false alert."
             } : z);
             const newAlert: Alert = {
               id: `al-sc-${Date.now()}`,
@@ -600,58 +605,93 @@ export const useCortexStore = create<CortexState>((set, get) => ({
           }
         }
       } else {
-        // Routine Drifts if no event scenario is running
-        zones = state.zones.map((zone) => {
-          const delta = randomBetween(-20, 20);
-          const current = Math.max(0, Math.min(zone.capacity, zone.current + delta));
-          const occupancy = (current / zone.capacity) * 100;
-          const sparkline = zone.densitySparkline ? [...zone.densitySparkline.slice(1), occupancy] : [];
+        // Autonomously trigger a scenario if none is active (AI Operating System positioning)
+        let triggered = false;
+        if (state.isSimulating && Math.random() > 0.95) {
+          const scenarios = ["heat_stroke", "gate_a_spike", "gate_c_congest", "halftime_rush"] as const;
+          const chosen = scenarios[Math.floor(Math.random() * scenarios.length)];
+          triggered = true;
+          if (chosen === "heat_stroke") {
+            activeScenario = { name: "heat_stroke", stage: 0, maxStages: 3 };
+            timelineEvents = [
+              { id: `tle-auto-${Date.now()}`, timestamp: new Date(), category: "Cortex AI", message: "Autonomous Detection: Section 112 medical anomaly detected.", severity: "warning" },
+              ...timelineEvents
+            ];
+          } else if (chosen === "gate_a_spike") {
+            activeScenario = { name: "goal_scored", stage: 0, maxStages: 3 };
+            timelineEvents = [
+              { id: `tle-auto-${Date.now()}`, timestamp: new Date(), category: "Cortex AI", message: "Autonomous Detection: Goal scored exited spectator surge.", severity: "critical" },
+              ...timelineEvents
+            ];
+          } else if (chosen === "gate_c_congest") {
+            activeScenario = { name: "metro_outage", stage: 0, maxStages: 3 };
+            timelineEvents = [
+              { id: `tle-auto-${Date.now()}`, timestamp: new Date(), category: "Cortex AI", message: "Autonomous Detection: Transit delay at Metro East platform.", severity: "warning" },
+              ...timelineEvents
+            ];
+          } else if (chosen === "halftime_rush") {
+            activeScenario = { name: "storm", stage: 0, maxStages: 3 };
+            timelineEvents = [
+              { id: `tle-auto-${Date.now()}`, timestamp: new Date(), category: "Cortex AI", message: "Autonomous Detection: Lightning threat within 5km radius.", severity: "critical" },
+              ...timelineEvents
+            ];
+          }
+        }
 
-          return {
-            ...zone,
-            current: Math.round(current),
-            status: getStatusColor(occupancy),
-            flowRate: zone.flowRate ? Math.max(0, zone.flowRate + randomInt(-8, 8)) : undefined,
-            densitySparkline: sparkline,
-          };
-        });
+        if (!triggered) {
+          // Routine Drifts if no event scenario is running
+          zones = state.zones.map((zone) => {
+            const delta = randomBetween(-20, 20);
+            const current = Math.max(0, Math.min(zone.capacity, zone.current + delta));
+            const occupancy = (current / zone.capacity) * 100;
+            const sparkline = zone.densitySparkline ? [...zone.densitySparkline.slice(1), occupancy] : [];
 
-        // Drift crowd metrics
-        const newOccupancy = randomBetween(89, 93);
-        const newRisk = randomBetween(65, 78);
-        const riskLevel = newRisk < 30 ? "Low" : newRisk < 60 ? "Moderate" : newRisk < 80 ? "High" : "Critical";
+            return {
+              ...zone,
+              current: Math.round(current),
+              status: getStatusColor(occupancy),
+              flowRate: zone.flowRate ? Math.max(0, zone.flowRate + randomInt(-8, 8)) : undefined,
+              densitySparkline: sparkline,
+            };
+          });
 
-        const now = new Date();
-        const timeLabel = `${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`;
-        const newHistory = [
-          ...state.crowd.densityHistory.slice(1),
-          { time: timeLabel, density: Math.round(newOccupancy), predicted: Math.round(newOccupancy + randomBetween(-3, 6)) },
-        ];
+          // Drift crowd metrics
+          const newOccupancy = randomBetween(89, 93);
+          const newRisk = randomBetween(65, 78);
+          const riskLevel = newRisk < 30 ? "Low" : newRisk < 60 ? "Moderate" : newRisk < 80 ? "High" : "Critical";
 
-        crowd = {
-          ...state.crowd,
-          occupancyRate: Math.round(newOccupancy * 10) / 10,
-          riskScore: Math.round(newRisk),
-          riskLevel: riskLevel as CortexState["crowd"]["riskLevel"],
-          densityHistory: newHistory,
-        };
-
-        // Routine logs
-        if (Math.random() > 0.8) {
-          const categories = ["Security", "Sensor", "AI Analytics", "Facility"];
-          const logs: Record<string, string[]> = {
-            "Security": ["Patrol route sector D cleared", "CCTV diagnostics nominal"],
-            "Sensor": ["Restroom North load normal", "Gate B ticketing rate stable"],
-            "AI Analytics": ["Halftime predictions refined", "Concessions model synced"],
-            "Facility": ["Waste bins recycled", "Light levels balanced"],
-          };
-          const cat = categories[Math.floor(Math.random() * categories.length)];
-          const msg = logs[cat][Math.floor(Math.random() * logs[cat].length)];
-          const id = `tle-tick-${Date.now()}`;
-          timelineEvents = [
-            { id, timestamp: new Date(), category: cat, message: msg, severity: "info" as const },
-            ...state.timelineEvents.slice(0, 49)
+          const now = new Date();
+          const timeLabel = `${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`;
+          const newHistory = [
+            ...state.crowd.densityHistory.slice(1),
+            { time: timeLabel, density: Math.round(newOccupancy), predicted: Math.round(newOccupancy + randomBetween(-3, 6)) },
           ];
+
+          crowd = {
+            ...state.crowd,
+            occupancyRate: Math.round(newOccupancy * 10) / 10,
+            riskScore: Math.round(newRisk),
+            riskLevel: riskLevel as CortexState["crowd"]["riskLevel"],
+            densityHistory: newHistory,
+          };
+
+          // Routine logs
+          if (Math.random() > 0.8) {
+            const categories = ["Security", "Sensor", "AI Analytics", "Facility"];
+            const logs: Record<string, string[]> = {
+              "Security": ["Patrol route sector D cleared", "CCTV diagnostics nominal"],
+              "Sensor": ["Restroom North load normal", "Gate B ticketing rate stable"],
+              "AI Analytics": ["Halftime predictions refined", "Concessions model synced"],
+              "Facility": ["Waste bins recycled", "Light levels balanced"],
+            };
+            const cat = categories[Math.floor(Math.random() * categories.length)];
+            const msg = logs[cat][Math.floor(Math.random() * logs[cat].length)];
+            const id = `tle-tick-${Date.now()}`;
+            timelineEvents = [
+              { id, timestamp: new Date(), category: cat, message: msg, severity: "info" as const },
+              ...state.timelineEvents.slice(0, 49)
+            ];
+          }
         }
       }
 
