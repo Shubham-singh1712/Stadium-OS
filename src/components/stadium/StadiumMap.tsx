@@ -205,6 +205,7 @@ export function StadiumMap({ role, target, active, onNodeClick }: StadiumMapProp
 
           return (
             <g key={node.id}
+              className="map-node-interactive"
               onClick={() => onNodeClick?.(node.name)}
               onMouseEnter={() => setHoveredNode(node.id)}
               onMouseLeave={() => setHoveredNode(null)}

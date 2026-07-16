@@ -113,10 +113,6 @@ export default function SustainabilityPage() {
         {/* Carbon trend */}
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Carbon Footprint Trend (tons)</h3>
-          <div className="sr-only">
-            <h4>Carbon Footprint Trend Summary</h4>
-            <p>Carbon footprint has decreased from 12.2 tons at 18:00 to 8.4 tons at 21:00.</p>
-          </div>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={trendData}>
               <defs>
@@ -132,11 +128,22 @@ export default function SustainabilityPage() {
               <Area type="monotone" dataKey="carbon" stroke="hsl(152,70%,50%)" fill="url(#cGrad)" strokeWidth={2} dot={false} name="CO₂ (t)" />
             </AreaChart>
           </ResponsiveContainer>
+          <div className="sr-only">
+            <h4>Carbon Footprint Trend Summary</h4>
+            <p>Carbon footprint has decreased from 12.2 tons at 18:00 to 8.4 tons at 21:00.</p>
+          </div>
         </div>
 
         {/* Radar */}
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Eco Performance Radar</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <RadarChart data={radarData}>
+              <PolarGrid stroke="hsl(215 20% 20%)" />
+              <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: "hsl(215 15% 50%)" }} />
+              <Radar name="Score" dataKey="value" stroke="hsl(152,70%,50%)" fill="hsl(152,70%,50%)" fillOpacity={0.2} strokeWidth={2} />
+            </RadarChart>
+          </ResponsiveContainer>
           <div className="sr-only">
             <h4>Eco Performance Summary</h4>
             <ul>
@@ -146,13 +153,6 @@ export default function SustainabilityPage() {
               <li>Transport Score: 62 out of 100</li>
             </ul>
           </div>
-          <ResponsiveContainer width="100%" height={200}>
-            <RadarChart data={radarData}>
-              <PolarGrid stroke="hsl(215 20% 20%)" />
-              <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: "hsl(215 15% 50%)" }} />
-              <Radar name="Score" dataKey="value" stroke="hsl(152,70%,50%)" fill="hsl(152,70%,50%)" fillOpacity={0.2} strokeWidth={2} />
-            </RadarChart>
-          </ResponsiveContainer>
         </div>
       </div>
 

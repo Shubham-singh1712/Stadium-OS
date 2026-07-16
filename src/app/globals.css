@@ -384,4 +384,18 @@ h1, h2, h3, h4, h5, h6 {
   color: hsl(152,70%,55%);
 }
 
+/* SVG map node interactive focus styles */
+.map-node-interactive:focus-visible {
+  outline: none;
+}
+.map-node-interactive:focus-visible rect {
+  stroke: hsl(190, 100%, 55%) !important;
+  stroke-width: 1.0px !important;
+  filter: drop-shadow(0 0 4px hsl(190, 100%, 50%));
+}
+.map-node-interactive:focus-visible circle {
+  stroke: #ffffff !important;
+  stroke-width: 1.2px !important;
+}
+
 

@@ -102,10 +102,6 @@ export default function CrowdIntelPage() {
         {/* Density trend */}
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Density vs. Prediction</h3>
-          <div className="sr-only">
-            <h4>Density vs Prediction Trend Summary</h4>
-            <p>Live crowd density matches predicted curves. Current occupancy rate is {crowd.occupancyRate}%.</p>
-          </div>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={crowd.densityHistory}>
               <defs>
@@ -126,19 +122,15 @@ export default function CrowdIntelPage() {
               <Area type="monotone" dataKey="predicted" name="Predicted %" stroke="hsl(0,84%,60%)" fill="url(#dg2)" strokeWidth={2} dot={false} strokeDasharray="5 3" />
             </AreaChart>
           </ResponsiveContainer>
+          <div className="sr-only">
+            <h4>Density vs Prediction Trend Summary</h4>
+            <p>Live crowd density matches predicted curves. Current occupancy rate is {crowd.occupancyRate}%.</p>
+          </div>
         </div>
 
         {/* Zone occupancy */}
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Zone Occupancy</h3>
-          <div className="sr-only">
-            <h4>Zone Occupancy Summary</h4>
-            <ul>
-              {zones.slice(0, 8).map(z => (
-                <li key={z.id}>{z.name}: {Math.round((z.current / z.capacity) * 100)}% ({z.status})</li>
-              ))}
-            </ul>
-          </div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart
               data={zones.slice(0, 8).map(z => ({
@@ -159,6 +151,14 @@ export default function CrowdIntelPage() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+          <div className="sr-only">
+            <h4>Zone Occupancy Summary</h4>
+            <ul>
+              {zones.slice(0, 8).map(z => (
+                <li key={z.id}>{z.name}: {Math.round((z.current / z.capacity) * 100)}% ({z.status})</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </div>
