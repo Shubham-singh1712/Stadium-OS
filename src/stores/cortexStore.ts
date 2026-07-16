@@ -55,6 +55,7 @@ interface CortexState {
   timelineEvents: TimelineEvent[];
   activeScenario: ActiveScenario | null;
   activeProtocol: ActiveProtocolState | null;
+  scenarioStageHeldAt: Date | null; // tracks when scenario paused at 2.5 for auto-advance
 
   // Actions
   acknowledgeAlert: (id: string) => void;
@@ -118,6 +119,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
   timelineEvents: INITIAL_TIMELINE,
   activeScenario: null,
   activeProtocol: null,
+  scenarioStageHeldAt: null,
 
   acknowledgeAlert: (id) =>
     set((state) => ({
@@ -270,8 +272,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       addTimelineEvent("Cortex AI", "Protocol Delta-2: Crowd Redistribution active. Concourse pressure drop verified.", "success");
 
       // Inject task dynamically to volunteer tasks list
-      try {
-        const { useVolunteerStore } = require("./volunteerStore");
+      import("./volunteerStore").then(({ useVolunteerStore }) => {
         useVolunteerStore.getState().addTask({
           title: "Protocol Delta-2: Guide Gate A flow",
           description: `Standby at Junction 7A to direct Gate A overflow fans towards Gate C.`,
@@ -280,9 +281,9 @@ export const useCortexStore = create<CortexState>((set, get) => ({
           estimatedMinutes: 10,
           aiGenerated: true,
         });
-      } catch (e) {
+      }).catch((e) => {
         console.warn("Failed to inject volunteer task:", e);
-      }
+      });
 
       // If resolving scenario
       const scenario = state.activeScenario;
@@ -330,8 +331,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       addTimelineEvent("Cortex AI", `Protocol Atlas-3: Lane expansion success at ${zone.name}. Congestion dropping.`, "success");
 
       // Inject task dynamically to volunteer tasks list
-      try {
-        const { useVolunteerStore } = require("./volunteerStore");
+      import("./volunteerStore").then(({ useVolunteerStore }) => {
         useVolunteerStore.getState().addTask({
           title: "Protocol Atlas-3: Deploy lane barriers",
           description: `Assemble queue dividers and cones at Gate C Lane 4 to handle overflow crowds.`,
@@ -340,9 +340,9 @@ export const useCortexStore = create<CortexState>((set, get) => ({
           estimatedMinutes: 8,
           aiGenerated: true,
         });
-      } catch (e) {
+      }).catch((e) => {
         console.warn("Failed to inject volunteer task:", e);
-      }
+      });
 
       const scenario = state.activeScenario;
       let newScenario = scenario;
@@ -431,7 +431,18 @@ export const useCortexStore = create<CortexState>((set, get) => ({
               acknowledged: false
             };
             alerts = [newAlert, ...alerts];
-            activeScenario = { ...activeScenario, stage: 2.5 }; // wait for operator approval
+            activeScenario = { ...activeScenario, stage: 2.5 }; // wait for operator approval (auto-resolves after 30s)
+            if (!state.scenarioStageHeldAt) {
+              setTimeout(() => {
+                const s = get().activeScenario;
+                if (s && s.stage === 2.5) {
+                  get().executeRedirect("gate-a", "gate-c");
+                  get().addTimelineEvent("Cortex AI", "Auto-Resolution: No operator response in 30s. Protocol Delta-2 executed autonomously.", "warning");
+                  set({ activeScenario: { ...s, stage: 3 }, scenarioStageHeldAt: null });
+                }
+              }, 30000);
+              set({ scenarioStageHeldAt: new Date() });
+            }
           } else if (stage === 3) {
             const id = `tle-sc-${Date.now()}`;
             timelineEvents = [
@@ -463,6 +474,16 @@ export const useCortexStore = create<CortexState>((set, get) => ({
               ...timelineEvents
             ];
             activeScenario = { ...activeScenario, stage: 2.5 };
+            if (!state.scenarioStageHeldAt) {
+              setTimeout(() => {
+                const s = get().activeScenario;
+                if (s && s.stage === 2.5) {
+                  get().addTimelineEvent("Cortex AI", "Auto-Resolution: No operator response in 30s. Protocol Nova-5 executed autonomously. Auxiliary shuttles routed.", "warning");
+                  set({ activeScenario: { ...s, stage: 3 }, scenarioStageHeldAt: null });
+                }
+              }, 30000);
+              set({ scenarioStageHeldAt: new Date() });
+            }
           } else if (stage === 3) {
             const id = `tle-sc-${Date.now()}`;
             timelineEvents = [
@@ -494,13 +515,24 @@ export const useCortexStore = create<CortexState>((set, get) => ({
               { id, timestamp: new Date(), category: "Cortex AI", message: "Prediction: Covered exits at Gate C will reach bottleneck risk. Protocol Atlas-3 recommended.", severity: "warning" },
               ...timelineEvents
             ];
-            zones = zones.map(z => z.id === "gate-c" ? { 
-              ...z, 
-              status: "yellow", 
-              current: 1580, 
-              aiRecommendation: "✦ Cortex Recommendation: Protocol Atlas-3 (Capacity Expansion)\n- **Reason**: Spectator relocation due to lightning storm.\n- **Evidence**: Covered exit corridor density reaches 94%.\n- **Prediction**: Severe egress congestion in next 5 minutes.\n- **Confidence**: 91%\n- **Expected Impact**: Opens lane 4; increases Gate C capacity limits by +500.\n- **Risk**: Increased volunteer guide deployment complexity.\n- **ETA**: 5 minutes.\n- **Affected Roles**: Security, Volunteers.\n- **Rollback Plan**: Restore standard lanes config." 
+            zones = zones.map(z => z.id === "gate-c" ? {
+              ...z,
+              status: "yellow",
+              current: 1580,
+              aiRecommendation: "✦ Cortex Recommendation: Protocol Atlas-3 (Capacity Expansion)\n- **Reason**: Spectator relocation due to lightning storm.\n- **Evidence**: Covered exit corridor density reaches 94%.\n- **Prediction**: Severe egress congestion in next 5 minutes.\n- **Confidence**: 91%\n- **Expected Impact**: Opens lane 4; increases Gate C capacity limits by +500.\n- **Risk**: Increased volunteer guide deployment complexity.\n- **ETA**: 5 minutes.\n- **Affected Roles**: Security, Volunteers.\n- **Rollback Plan**: Restore standard lanes config."
             } : z);
             activeScenario = { ...activeScenario, stage: 2.5 };
+            if (!state.scenarioStageHeldAt) {
+              setTimeout(() => {
+                const s = get().activeScenario;
+                if (s && s.stage === 2.5) {
+                  get().executeOverflow("gate-c");
+                  get().addTimelineEvent("Cortex AI", "Auto-Resolution: No operator response in 30s. Protocol Atlas-3 executed autonomously.", "warning");
+                  set({ activeScenario: { ...s, stage: 3 }, scenarioStageHeldAt: null });
+                }
+              }, 30000);
+              set({ scenarioStageHeldAt: new Date() });
+            }
           } else if (stage === 3) {
             const id = `tle-sc-${Date.now()}`;
             timelineEvents = [
@@ -530,12 +562,11 @@ export const useCortexStore = create<CortexState>((set, get) => ({
               { id, timestamp: new Date(), category: "Cortex AI", message: "Prediction: Critical vital threat in ~2 minutes. Recommendation pending operator dispatch.", severity: "critical" },
               ...timelineEvents
             ];
-            zones = zones.map(z => z.id === "medical-2" ? { 
-              ...z, 
-              status: "red", 
-              aiRecommendation: "✦ Cortex Recommendation: Medical Dispatch\n- **Reason**: Heat stroke risk from high temperature.\n- **Evidence**: Wearable diagnostics flag body temp > 34C.\n- **Prediction**: Critical vital drop in ~2 minutes.\n- **Confidence**: 96%\n- **Expected Impact**: Deploy volunteer with hydration to Sector F.\n- **Risk**: Sector F guides decrease.\n- **ETA**: 2 minutes.\n- **Affected Roles**: Volunteers, Security, Medical.\n- **Rollback Plan**: Recall medical dispatcher if false alert." 
+            zones = zones.map(z => z.id === "medical-2" ? {
+              ...z,
+              status: "red",
+              aiRecommendation: "✦ Cortex Recommendation: Medical Dispatch\n- **Reason**: Heat stroke risk from high temperature.\n- **Evidence**: Wearable diagnostics flag body temp > 34C.\n- **Prediction**: Critical vital drop in ~2 minutes.\n- **Confidence**: 96%\n- **Expected Impact**: Deploy volunteer with hydration to Sector F.\n- **Risk**: Sector F guides decrease.\n- **ETA**: 2 minutes.\n- **Affected Roles**: Volunteers, Security, Medical.\n- **Rollback Plan**: Recall medical dispatcher if false alert."
             } : z);
-            
             const newAlert: Alert = {
               id: `al-sc-${Date.now()}`,
               severity: "critical",
@@ -548,6 +579,17 @@ export const useCortexStore = create<CortexState>((set, get) => ({
             };
             alerts = [newAlert, ...alerts];
             activeScenario = { ...activeScenario, stage: 2.5 };
+            if (!state.scenarioStageHeldAt) {
+              setTimeout(() => {
+                const s = get().activeScenario;
+                if (s && s.stage === 2.5) {
+                  get().autoAssignStaff();
+                  get().addTimelineEvent("Cortex AI", "Auto-Resolution: No operator response in 30s. Medical dispatch executed autonomously by Cortex AI.", "warning");
+                  set({ activeScenario: { ...s, stage: 3 }, scenarioStageHeldAt: null });
+                }
+              }, 30000);
+              set({ scenarioStageHeldAt: new Date() });
+            }
           } else if (stage === 3) {
             const id = `tle-sc-${Date.now()}`;
             timelineEvents = [
@@ -626,6 +668,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         vendors,
         transport,
         timelineEvents,
+        alerts,
         crowd,
         activeScenario,
         activeProtocol,

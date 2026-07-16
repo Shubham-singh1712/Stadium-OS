@@ -151,7 +151,7 @@ describe("Page Integration & Dashboard Form Actions", () => {
     it("should accept incident details and dispatch help request", () => {
       render(<FanEmergencyPage />);
 
-      const detailsInput = screen.getByLabelText("Incident Details") as HTMLTextAreaElement;
+      const detailsInput = screen.getByLabelText(/Incident Details/) as HTMLTextAreaElement;
       const dispatchBtn = screen.getByText("🚨 Dispatch Help Now");
 
       fireEvent.change(detailsInput, { target: { value: "Fainting spectator" } });

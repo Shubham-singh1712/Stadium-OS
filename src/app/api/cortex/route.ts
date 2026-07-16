@@ -1,15 +1,35 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { CopilotMessage, CopilotChart, CopilotAction, StadiumZone } from "@/types";
+
+const requestSchema = z.object({
+  messages: z.array(z.object({
+    id: z.string(),
+    role: z.enum(["user", "cortex"]),
+    content: z.string().min(1),
+    timestamp: z.coerce.date(),
+  })).min(1, "At least one message is required"),
+  context: z.any().optional(),
+});
 
 export async function POST(req: Request) {
   try {
     const origin = req.headers.get("origin");
     const host = req.headers.get("host");
-    if (origin && host && !origin.includes(host)) {
-      return NextResponse.json({ error: "Forbidden CSRF origin matching failed" }, { status: 403 });
+    // Block requests with mismatched origin OR missing origin (prevents curl/server-side bypass)
+    if (!origin || !host || !origin.includes(host)) {
+      return NextResponse.json({ error: "Forbidden: CSRF origin validation failed" }, { status: 403 });
     }
 
-    const { messages, context } = await req.json();
+    const body = await req.json();
+    const parsed = requestSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid request body", details: parsed.error.flatten() },
+        { status: 400 }
+      );
+    }
+    const { messages, context } = parsed.data;
     const lastMessage = (messages as CopilotMessage[])[messages.length - 1].content;
     const apiKey = process.env.GEMINI_API_KEY;
 

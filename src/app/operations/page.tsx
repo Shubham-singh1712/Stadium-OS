@@ -339,7 +339,9 @@ export default function OperationsPage() {
                 <p style={{ fontSize: "0.8125rem", color: "hsl(var(--foreground-muted))", lineHeight: 1.5, marginBottom: "0.75rem" }}>
                   {p.prediction}
                 </p>
-                <button
+              <button
+                  aria-label={`Execute action: ${p.action} for ${p.label}`}
+                  id={`pred-btn-${p.label.toLowerCase().replace(/\s+/g, "-")}`}
                   style={{
                     padding: "0.375rem 0.75rem", borderRadius: "var(--radius-sm)",
                     background: p.severity === "red" ? "hsl(0 84% 55%)" : "hsl(42 95% 52%)",
