@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
 import { DemoControls } from "../components/layout/DemoControls";
+import { SimulatorControls } from "../components/layout/SimulatorControls";
 import { GateSparkline } from "../components/cortex/GateSparkline";
 import { GateTelemetry } from "../components/cortex/GateTelemetry";
 
@@ -13,7 +14,7 @@ vi.mock("../stores/cortexStore", () => ({
   }
 }));
 
-describe("DemoControls Component", () => {
+describe("Simulation Components", () => {
   const originalEnv = process.env.NEXT_PUBLIC_DEMO_MODE;
 
   afterAll(() => {
@@ -21,31 +22,31 @@ describe("DemoControls Component", () => {
     vi.restoreAllMocks();
   });
 
-  it("should not render if NEXT_PUBLIC_DEMO_MODE is not true", () => {
-    process.env.NEXT_PUBLIC_DEMO_MODE = "false";
-    const { container } = render(<DemoControls />);
+  it("should not render SimulatorControls if simulatorOpen is false", () => {
+    process.env.NEXT_PUBLIC_DEMO_MODE = "true";
+    const { container } = render(<SimulatorControls simulatorOpen={false} setSimulatorOpen={() => {}} />);
     expect(container.firstChild).toBeNull();
   });
 
-  it("should render and trigger scenarios when NEXT_PUBLIC_DEMO_MODE is true", () => {
+  it("should render and trigger scenarios from SimulatorControls", () => {
     process.env.NEXT_PUBLIC_DEMO_MODE = "true";
-    render(<DemoControls />);
+    render(<SimulatorControls simulatorOpen={true} setSimulatorOpen={() => {}} />);
     
-    expect(screen.getByText("Demo Controls")).toBeDefined();
+    expect(screen.getByText(/Simulation Center/i)).toBeDefined();
     
-    const goalSurgeBtn = screen.getByText("Goal Surge");
+    const goalSurgeBtn = screen.getByText(/Gate A Spike/i);
     fireEvent.click(goalSurgeBtn);
     expect(mockTriggerScenario).toHaveBeenCalledWith("gate_a_spike");
     
-    const transitBtn = screen.getByText("Transit Delay");
+    const transitBtn = screen.getByText(/Gate C Congested/i);
     fireEvent.click(transitBtn);
     expect(mockTriggerScenario).toHaveBeenCalledWith("gate_c_congest");
 
-    const stormBtn = screen.getByText("Storm Warning");
+    const stormBtn = screen.getByText(/Halftime Concessions/i);
     fireEvent.click(stormBtn);
     expect(mockTriggerScenario).toHaveBeenCalledWith("halftime_rush");
 
-    const medBtn = screen.getByText("Medical Drop");
+    const medBtn = screen.getByText(/Medical SOS/i);
     fireEvent.click(medBtn);
     expect(mockTriggerScenario).toHaveBeenCalledWith("heat_stroke");
   });

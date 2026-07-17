@@ -24,14 +24,21 @@ export default function HomePage() {
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
+    let ticking = false;
     const handleMouseMove = (e: MouseEvent) => {
-      const normalizedX = (e.clientX / window.innerWidth) - 0.5;
-      const normalizedY = (e.clientY / window.innerHeight) - 0.5;
-      
-      mouseX.set(normalizedX);
-      mouseY.set(normalizedY);
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const normalizedX = (e.clientX / window.innerWidth) - 0.5;
+          const normalizedY = (e.clientY / window.innerHeight) - 0.5;
+          
+          mouseX.set(normalizedX);
+          mouseY.set(normalizedY);
+          cursorX.set(e.clientX);
+          cursorY.set(e.clientY);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -180,8 +187,8 @@ export default function HomePage() {
           transition={{ duration: 1, delay: 3.5 }}
           className="mt-4 mb-2 flex flex-col items-center gap-1 select-none"
         >
-          <span className="text-[9px] uppercase tracking-[0.2em] text-white/30 font-semibold">Select your operational role</span>
-          <span className="text-[11px] uppercase tracking-[0.25em] text-white/50 font-bold">Enter StadiumOS AI</span>
+          <span className="text-[9px] uppercase tracking-[0.2em] text-white/50 font-semibold">Select your operational role</span>
+          <span className="text-[11px] uppercase tracking-[0.25em] text-white/70 font-bold">Enter StadiumOS AI</span>
         </motion.div>
 
       </div>

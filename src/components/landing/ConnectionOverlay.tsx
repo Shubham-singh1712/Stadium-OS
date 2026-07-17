@@ -27,7 +27,7 @@ export function ConnectionOverlay({ hoveredRole, shouldReduceMotion }: Connectio
       transition={{ duration: 1, delay: 2.2 }}
       className="absolute inset-0 pointer-events-none z-0"
     >
-      <svg className="w-full h-full overflow-visible" viewBox="0 0 100 100" fill="none" preserveAspectRatio="none">
+      <svg className="w-full h-full overflow-visible" viewBox="0 0 100 100" fill="none" preserveAspectRatio="none" aria-hidden="true" focusable="false">
         
         {/* Subtle persistent background connection lines */}
         <g stroke="rgba(255,255,255,0.04)" strokeWidth="0.15" strokeDasharray="1 2">

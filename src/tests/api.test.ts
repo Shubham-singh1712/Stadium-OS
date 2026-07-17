@@ -201,7 +201,7 @@ describe("POST /api/cortex — Fallback Local Reasoning Engine", () => {
 // ─── Error Handling ────────────────────────────────────────────────────────────
 
 describe("POST /api/cortex — Error Handling", () => {
-  it("should return 500 when request body is malformed JSON", async () => {
+  it("should return 400 when request body is malformed JSON", async () => {
     const headers = new Headers();
     headers.set("host", "localhost:3000");
     headers.set("origin", "http://localhost:3000");
@@ -213,7 +213,7 @@ describe("POST /api/cortex — Error Handling", () => {
       body: "{ this is not valid json }",
     });
     const res = await POST(req as any);
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
   });
 
   it("should return error object when status is 500", async () => {

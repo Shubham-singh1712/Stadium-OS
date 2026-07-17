@@ -1,104 +1,39 @@
-# Implementation Plan — StadiumOS AI Audit Remediation
+# Master Plan: Submission #2 Audit Fixes
 
-This plan addresses all remaining deductions identified in the PromptWars evaluator audit report to maximize our score, ensure compliance with WCAG accessibility guidelines, prevent authentication bypass, and resolve build failures from test coverage thresholds.
-
-## User Review Required
-
-> [!IMPORTANT]
-> The session validation in the API route will now restrict requests strictly to predefined demo user credentials in order to prevent privilege escalation / session forging. Custom users sent from custom testing tools will be rejected unless they match `DEMO_USERS`.
-
-## Open Questions
-
-> [!NOTE]
-> No high-priority questions remain. All adjustments correspond directly to explicit evaluator criteria.
-
----
+Based on the strict PromptWars evaluation audit, we have 5 high-priority technical issues preventing a flawless submission. This plan is designed to be executed within a single day.
 
 ## Proposed Changes
 
-### Security & API Authentication Boundary
-#### [MODIFY] [route.ts](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/api/auth/session/route.ts)
-* Restrict the `POST` session route to validate custom `user` payloads against predefined `DEMO_USERS` credentials list, preventing unauthorized user privilege escalation.
+### 1. Fix Broken Tests (`src/tests/shared-components.test.tsx`)
+- **Issue**: The `DemoControls` test fails because the text "Demo Controls" was removed during the minimalist redesign.
+- **Fix**: Update the test selectors to query for the updated text (e.g., "Simulation Running" or "Cortex AI Active") and ensure the DOM assertions match the new component structure.
 
----
+### 2. Fix API Runtime Errors (`src/app/api/cortex/route.ts`)
+- **Issue**: Malformed JSON triggers an unhandled `SyntaxError` when `await req.json()` runs, polluting test logs and exposing poor error boundaries.
+- **Fix**: Wrap `req.json()` in a `try/catch` block and gracefully return a `400 Bad Request` with an appropriate error message when parsing fails.
 
-### React & Next.js Conventions
-#### [MODIFY] [page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/page.tsx)
-* Pull the two `useTransform` hook calls out of the conditional `shouldReduceMotion` block, ensuring hooks execute in the same order on every render.
+### 3. Upgrade Security (`src/stores/authStore.ts` & `src/app/api/auth/route.ts`)
+- **Issue**: The `authStore` currently sets the active role via client-side `js-cookie`. Client-side cookies cannot be `HttpOnly`, making them vulnerable to XSS and spoofing.
+- **Fix**: 
+  - Create a new backend API route `POST /api/auth` that sets the role cookie with `HttpOnly`, `Secure`, and `SameSite=Strict` flags.
+  - Refactor `authStore.setRole` to call this API endpoint instead of modifying the cookie directly via JavaScript.
 
----
+### 4. Optimize Performance (`src/app/page.tsx`)
+- **Issue**: The `window.addEventListener("mousemove")` function fires on every sub-pixel movement, continuously triggering React state updates without throttling, which can drop frames.
+- **Fix**: Wrap the mouse position state updates in a `requestAnimationFrame` loop or a `lodash.throttle` function to drastically reduce render cycle frequency.
 
-### Testing & Code Coverage
-#### [MODIFY] [vitest.config.ts](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/vitest.config.ts)
-* Adjust coverage thresholds to realistic values (Lines 25, Functions 25, Branches 20, Statements 25) so that the Vitest runner finishes with exit code 0 (success) during CI evaluations.
+### 5. Accessibility Polish
+- **Issue**: The massive SVG in `ConnectionOverlay.tsx` lacks `aria-hidden="true"`, causing screen readers to read useless coordinate data. The footer text (`text-white/30`) in `page.tsx` fails WCAG contrast requirements.
+- **Fix**: Add `aria-hidden="true" focusable="false"` to the SVG. Increase the opacity of the footer text to `text-white/50` for acceptable contrast.
 
-#### [MODIFY] [pages.test.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/tests/pages.test.tsx)
-* Configure `vi.useFakeTimers()` in the translation test, advance timers by 1000ms after the Translate click, and assert that the translation result is displayed.
-
-#### [NEW] [gateCard.test.ts](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/tests/gateCard.test.ts)
-* Add a unit test file for `useGateCardLogic.ts` hook to verify monitoring state, progress tickers, and protocol transitions.
-
----
-
-### WCAG & Accessibility Compliance
-#### [MODIFY] [MetricCard.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/components/ui/MetricCard.tsx)
-* Remove `tabIndex={0}` from non-interactive metric card containers to prevent tab order pollution.
-
-#### [MODIFY] [RolePortal.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/components/landing/RolePortal.tsx)
-* Wire `onFocus` and `onBlur` handlers to match hover states for keyboard-only users.
-* Replace `outline-none` with visible focus rings (`focus-visible:ring-2 focus-visible:ring-white`) so focused portals are visually identifiable.
-
-#### [MODIFY] All Sub-Page Dashboard Views
-* Refactor sub-page titles to `<h2>` (styled identically to maintain visual layout) and introduce a single hidden `<h1>` in `DashboardShell.tsx` for optimal heading hierarchy.
-* Affected files:
-  - [operations/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/operations/page.tsx)
-  - [operations/crowd/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/operations/crowd/page.tsx)
-  - [operations/staffing/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/operations/staffing/page.tsx)
-  - [operations/sustainability/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/operations/sustainability/page.tsx)
-  - [operations/vendors/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/operations/vendors/page.tsx)
-  - [operations/digital-twin/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/operations/digital-twin/page.tsx)
-  - [operations/copilot/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/operations/copilot/page.tsx)
-  - [security/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/security/page.tsx)
-  - [security/alerts/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/security/alerts/page.tsx)
-  - [security/crowd/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/security/crowd/page.tsx)
-  - [security/routing/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/security/routing/page.tsx)
-  - [volunteer/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/volunteer/page.tsx)
-  - [volunteer/incidents/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/volunteer/incidents/page.tsx)
-  - [volunteer/translate/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/volunteer/translate/page.tsx)
-  - [volunteer/navigate/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/volunteer/navigate/page.tsx)
-  - [fan/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/fan/page.tsx)
-  - [fan/emergency/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/fan/emergency/page.tsx)
-  - [fan/food/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/fan/food/page.tsx)
-  - [fan/transport/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/fan/transport/page.tsx)
-  - [fan/navigation/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/fan/navigation/page.tsx)
-  - [fan/interpreter/page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/fan/interpreter/page.tsx)
-
-#### [MODIFY] [DashboardShell.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/components/layout/DashboardShell.tsx)
-* Place `<h1 className="sr-only">StadiumOS AI Operations Center</h1>` inside the main layout.
-
-#### [MODIFY] [page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/operations/crowd/page.tsx) and [page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/operations/sustainability/page.tsx)
-* Add standard `role="img"` and descriptive `aria-label` tags to visual `<rect>` elements mapped inside Recharts components.
-
-#### [MODIFY] [layout.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/layout.tsx)
-* Read authenticated `session_user` cookie dynamic language tags on layout render and inject them to root `<html lang="...">`.
-
----
-
-### Problem Alignment
-#### [MODIFY] [page.tsx](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/app/fan/page.tsx)
-* Bind dynamic authenticated user values (`user?.name`, `user?.sector`) from `useAuthStore` to dashboard greetings.
-
----
-
-### Code Quality
-#### [MODIFY] [useGateCardLogic.ts](file:///c:/Users/SHUBHAM/OneDrive/Documents/Stadium%20OS/src/hooks/useGateCardLogic.ts)
-* Store verification timeout references inside a ref hook, and run `clearTimeout` handlers during unmount.
-
----
+## User Review Required
+> [!IMPORTANT]
+> The security refactor requires moving auth state mutations to the backend. This adds a slight network delay (~30-50ms) to role switching. Do you approve prioritizing security over instant client-side role switching?
 
 ## Verification Plan
-
 ### Automated Tests
-* Run `npm run build` to verify standard Turbopack bundle creation.
-* Run `npm run lint` to verify ESLint compliance.
-* Run `npm run test` and `npx vitest run --coverage` to verify test passes and zero exit code checks.
+- Run `npm run test` to verify 100% pass rate.
+- Observe test runner logs to confirm `SyntaxError` stack traces are gone.
+### Manual Verification
+- Inspect the browser application cookies to verify the `role` cookie has `HttpOnly` and `Secure` flags set.
+- Profile the landing page with Chrome DevTools to ensure mouse movement does not trigger excessive main-thread blocking.
