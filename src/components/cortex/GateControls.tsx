@@ -12,6 +12,9 @@ interface GateControlsProps {
   approveProtocol: () => void;
   cancelProtocolClick: () => void;
   handleActionClick: () => void;
+  abortProtocol?: () => void;
+  toggleChecklistItem?: (index: number) => void;
+  activeProtocol?: any;
 }
 
 export function GateControls({
@@ -25,27 +28,46 @@ export function GateControls({
   actionType,
   approveProtocol,
   cancelProtocolClick,
-  handleActionClick
+  handleActionClick,
+  abortProtocol,
+  toggleChecklistItem,
+  activeProtocol
 }: GateControlsProps) {
+  const allChecked = activeProtocol?.checklist?.every((item: any) => item.done);
+
   return (
     <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
       <AnimatePresence mode="wait">
         {workflowStep === "review" ? (
-          <motion.div key="review-buttons" style={{ display: "flex", gap: "0.5rem" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <button 
-              className="btn btn-primary" 
-              style={{ flex: 1, justifyContent: "center", fontSize: "0.8125rem", fontWeight: 700 }}
-              onClick={approveProtocol}
-            >
-              ⚡ Approve Protocol
-            </button>
-            <button 
-              className="btn btn-ghost" 
-              style={{ justifyContent: "center", fontSize: "0.8125rem" }}
-              onClick={cancelProtocolClick}
-            >
-              ✕ Reject
-            </button>
+          <motion.div key="review-buttons" style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            {activeProtocol?.checklist && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", padding: "0.5rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
+                <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "hsl(var(--foreground-muted))" }}>PROTOCOL CHECKLIST</span>
+                {activeProtocol.checklist.map((item: any, idx: number) => (
+                  <label key={idx} style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", cursor: "pointer" }}>
+                    <input type="checkbox" checked={item.done} onChange={() => toggleChecklistItem?.(idx)} style={{ cursor: "pointer" }} />
+                    <span style={{ color: item.done ? "hsl(var(--foreground-muted))" : "hsl(var(--foreground))", textDecoration: item.done ? "line-through" : "none" }}>{item.label}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button 
+                className="btn btn-primary" 
+                style={{ flex: 1, justifyContent: "center", fontSize: "0.8125rem", fontWeight: 700, opacity: allChecked ? 1 : 0.5 }}
+                onClick={approveProtocol}
+                disabled={!allChecked}
+              >
+                ⚡ Execute
+              </button>
+              <button 
+                className="btn btn-ghost" 
+                style={{ justifyContent: "center", fontSize: "0.8125rem" }}
+                onClick={cancelProtocolClick}
+              >
+                ✕ Reject
+              </button>
+            </div>
           </motion.div>
         ) : workflowStep === "executing" ? (
           <motion.div
@@ -78,6 +100,12 @@ export function GateControls({
               {execProgress >= 40 && execProgress < 80 && "> SIGNAGE API OVERRIDE: ACTIVE"}
               {execProgress >= 80 && "> DISPATCHING VOLUNTEER CHEVRONS..."}
             </div>
+            <button
+              style={{ marginTop: "4px", background: "hsl(0,84%,20%)", color: "hsl(0,84%,60%)", border: "1px solid hsl(0,84%,40%)", borderRadius: "4px", padding: "4px", fontSize: "0.6rem", cursor: "pointer", fontWeight: "bold" }}
+              onClick={abortProtocol}
+            >
+              ABORT PROTOCOL
+            </button>
           </motion.div>
         ) : workflowStep === "verifying" ? (
           <motion.div

@@ -38,8 +38,9 @@ export interface ActiveProtocolState {
   zoneId: string;
   protocolName: string;
   protocolTitle: string;
-  status: "idle" | "review" | "executing" | "verifying" | "success";
+  status: "idle" | "review" | "executing" | "verifying" | "success" | "aborted";
   progress: number;
+  checklist: { label: string; done: boolean }[];
 }
 
 interface CortexState {
@@ -62,8 +63,8 @@ interface CortexState {
   dismissAlert: (id: string) => void;
   addAlert: (alert: Omit<Alert, "id" | "timestamp">) => void;
   startSimulation: () => void;
-  stopSimulation: () => void;
   tick: () => void;
+  tickAsync: () => Promise<void>;
   addToast: (title: string, message: string, severity: Toast["severity"]) => void;
   dismissToast: (id: string) => void;
   addTimelineEvent: (category: string, message: string, severity: TimelineEvent["severity"]) => void;
@@ -73,6 +74,8 @@ interface CortexState {
   startProtocol: (zoneId: string, protocolName: string, protocolTitle: string) => void;
   setProtocolStatus: (status: ActiveProtocolState["status"], progress?: number) => void;
   cancelProtocol: () => void;
+  abortProtocol: () => void;
+  toggleChecklistItem: (index: number) => void;
 
   // Security Operations
   executeRedirect: (zoneId: string, targetId: string) => void;
@@ -198,7 +201,12 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         protocolName: name,
         protocolTitle: title,
         status: "review",
-        progress: 0
+        progress: 0,
+        checklist: [
+          { label: "Verify AI Threat Confidence > 90%", done: false },
+          { label: "Alert Zone Supervisors", done: false },
+          { label: "Deploy Crowd Barriers", done: false }
+        ]
       }
     });
   },
@@ -236,6 +244,24 @@ export const useCortexStore = create<CortexState>((set, get) => ({
 
   cancelProtocol: () => {
     set({ activeProtocol: null });
+  },
+
+  abortProtocol: () => {
+    const { addToast, addTimelineEvent } = get();
+    set((state) => {
+      addToast("🛑 Protocol Aborted", "Active protocol execution aborted and rolled back.", "warning");
+      addTimelineEvent("Security", "Operator aborted protocol. Restoring previous state.", "warning");
+      return { activeProtocol: null };
+    });
+  },
+
+  toggleChecklistItem: (index: number) => {
+    set((state) => {
+      if (!state.activeProtocol) return state;
+      const newChecklist = [...state.activeProtocol.checklist];
+      newChecklist[index].done = !newChecklist[index].done;
+      return { activeProtocol: { ...state.activeProtocol, checklist: newChecklist } };
+    });
   },
 
   executeRedirect: (zoneId: string, targetId: string) => {
@@ -385,336 +411,85 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       let vendors = state.vendors;
       let transport = state.transport;
 
-      // ─── Operational Scenario Events Cascade Engine ───
-      if (activeScenario) {
-        const stage = activeScenario.stage;
-        const name = activeScenario.name;
-
-        if (name === "goal_scored") {
-          if (stage === 0) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Observation: Goal Scored by USA! Stadium excitement index spikes.", severity: "info" },
-              ...timelineEvents
-            ];
-            activeScenario = { ...activeScenario, stage: 1 };
-          } else if (stage === 1) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Analysis: Concourse movement increases. Concessions demand projections rising.", severity: "warning" },
-              ...timelineEvents
-            ];
-            vendors = vendors.map(v => v.zone === "Food Court A" ? { ...v, waitMinutes: 28, queueLength: 48 } : v);
-            activeScenario = { ...activeScenario, stage: 2 };
-          } else if (stage === 2) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Prediction: Gate A bottleneck risk is Critical. Protocol Delta-2 recommended.", severity: "critical" },
-              ...timelineEvents
-            ];
-            zones = zones.map(z => z.id === "gate-a" ? { 
-              ...z, 
-              current: 1940, 
-              status: "red", 
-              aiRecommendation: "✦ Cortex Recommendation: Protocol Delta-2 (Crowd Redistribution)\n- **Reason**: Excitement exit surge after USA goal.\n- **Evidence**: Spectator flow at turnstile turnstiles spikes to 420/min.\n- **Prediction**: Bottleneck critical overflow in ~3 minutes.\n- **Confidence**: 94%\n- **Expected Impact**: Divert 25% of spectators to Gate C.\n- **Risk**: Marginal queues increase at Gate C lanes.\n- **ETA**: 3 minutes.\n- **Affected Roles**: Command Center, Volunteers, Security.\n- **Alternative Strategy**: Redirect spectators to Gate B (adds 5 minutes of walking distance but utilizes uncrowded south path).\n- **Rollback Plan**: Deactivate redirection." 
-            } : z);
-            crowd = { ...crowd, riskScore: 89, riskLevel: "Critical" };
-            
-            const newAlert: Alert = {
-              id: `al-sc-${Date.now()}`,
-              severity: "critical",
-              title: "Gate A Congestion Spike",
-              message: "AI prediction shows Gate A density will exceed 97% in 5 minutes.",
-              zone: "Gate A",
-              timestamp: new Date(),
-              actionRequired: true,
-              acknowledged: false
-            };
-            alerts = [newAlert, ...alerts];
-            activeScenario = { ...activeScenario, stage: 2.5 }; // wait for operator approval (auto-resolves after 30s)
-            if (!state.scenarioStageHeldAt) {
-              setTimeout(() => {
-                const s = get().activeScenario;
-                if (s && s.stage === 2.5) {
-                  get().executeRedirect("gate-a", "gate-c");
-                  get().addTimelineEvent("Cortex AI", "Auto-Resolution: No operator response in 30s. Protocol Delta-2 executed autonomously.", "warning");
-                  set({ activeScenario: { ...s, stage: 3 }, scenarioStageHeldAt: null });
-                }
-              }, 30000);
-              set({ scenarioStageHeldAt: new Date() });
-            }
-          } else if (stage === 3) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Verification: Protocol Delta-2 complete. Gate A density drops to 69%. Flow stabilized.", severity: "success" },
-              ...timelineEvents
-            ];
-            activeScenario = null;
-          }
-        } else if (name === "metro_outage") {
-          if (stage === 0) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Observation: Metro Line 2 direct service delayed by 15 mins. Platform bottlenecks predicted.", severity: "warning" },
-              ...timelineEvents
-            ];
-            activeScenario = { ...activeScenario, stage: 1 };
-          } else if (stage === 1) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Analysis: Metro East crowding reaches warning threshold. Surge rideshare demand active.", severity: "warning" },
-              ...timelineEvents
-            ];
-            transport = transport.map(t => t.id === "tr-1" ? { ...t, crowding: "red", departureIn: 18 } : t.id === "tr-4" ? { ...t, crowding: "red", departureIn: 1 } : t);
-            activeScenario = { ...activeScenario, stage: 2 };
-          } else if (stage === 2) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Recommendation: Protocol Nova-5 (Transport Optimization) suggested to direct shuttles.", severity: "info" },
-              ...timelineEvents
-            ];
-            zones = zones.map(z => z.id === "gate-c" ? { 
-              ...z, 
-              status: "yellow", 
-              aiRecommendation: "✦ Cortex Recommendation: Protocol Nova-5 (Transport Optimization)\n- **Reason**: Metro Line 2 direct service delayed by 15 mins.\n- **Evidence**: Metro East crowding reaches warning threshold.\n- **Prediction**: Platform bottlenecks within 10 minutes.\n- **Confidence**: 92%\n- **Expected Impact**: Deploy auxiliary shuttle buses to route spectators to alternative train hubs.\n- **Risk**: Minor vehicular routing delay on access ring-road.\n- **ETA**: 10 minutes.\n- **Affected Roles**: Transport Ops, Volunteers, Security.\n- **Alternative Strategy**: Redirect passengers to rideshare pickup zone A (10 minute walk).\n- **Rollback Plan**: Recall auxiliary shuttle buses." 
-            } : z);
-            activeScenario = { ...activeScenario, stage: 2.5 };
-            if (!state.scenarioStageHeldAt) {
-              setTimeout(() => {
-                const s = get().activeScenario;
-                if (s && s.stage === 2.5) {
-                  get().addTimelineEvent("Cortex AI", "Auto-Resolution: No operator response in 30s. Protocol Nova-5 executed autonomously. Auxiliary shuttles routed.", "warning");
-                  set({ activeScenario: { ...s, stage: 3 }, scenarioStageHeldAt: null });
-                }
-              }, 30000);
-              set({ scenarioStageHeldAt: new Date() });
-            }
-          } else if (stage === 3) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Verification: Protocol Nova-5 complete. Auxiliary shuttles deployed. Crowding relieved.", severity: "success" },
-              ...timelineEvents
-            ];
-            transport = transport.map(t => t.id === "tr-2" ? { ...t, crowding: "green", departureIn: 4, recommended: true } : t);
-            activeScenario = null;
-          }
-        } else if (name === "storm") {
-          if (stage === 0) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Observation: Lightning warning active within 5km. Open seating evacuation advised.", severity: "critical" },
-              ...timelineEvents
-            ];
-            activeScenario = { ...activeScenario, stage: 1 };
-          } else if (stage === 1) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Analysis: Covered concourses occupancy spikes to 94%. Restroom North load yellow.", severity: "warning" },
-              ...timelineEvents
-            ];
-            zones = zones.map(z => z.id === "rest-north" ? { ...z, status: "yellow", current: 82 } : z);
-            activeScenario = { ...activeScenario, stage: 2 };
-          } else if (stage === 2) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Prediction: Covered exits at Gate C will reach bottleneck risk. Protocol Atlas-3 recommended.", severity: "warning" },
-              ...timelineEvents
-            ];
-            zones = zones.map(z => z.id === "gate-c" ? {
-              ...z,
-              status: "yellow",
-              current: 1580,
-              aiRecommendation: "✦ Cortex Recommendation: Protocol Atlas-3 (Capacity Expansion)\n- **Reason**: Spectator relocation due to lightning storm.\n- **Evidence**: Covered exit corridor density reaches 94%.\n- **Prediction**: Severe egress congestion in next 5 minutes.\n- **Confidence**: 91%\n- **Expected Impact**: Opens lane 4; increases Gate C capacity limits by +500.\n- **Risk**: Increased volunteer guide deployment complexity.\n- **ETA**: 5 minutes.\n- **Affected Roles**: Security, Volunteers.\n- **Alternative Strategy**: Hold spectators in covered concourses and delay egress until lightning warning clears.\n- **Rollback Plan**: Restore standard lanes config."
-            } : z);
-            activeScenario = { ...activeScenario, stage: 2.5 };
-            if (!state.scenarioStageHeldAt) {
-              setTimeout(() => {
-                const s = get().activeScenario;
-                if (s && s.stage === 2.5) {
-                  get().executeOverflow("gate-c");
-                  get().addTimelineEvent("Cortex AI", "Auto-Resolution: No operator response in 30s. Protocol Atlas-3 executed autonomously.", "warning");
-                  set({ activeScenario: { ...s, stage: 3 }, scenarioStageHeldAt: null });
-                }
-              }, 30000);
-              set({ scenarioStageHeldAt: new Date() });
-            }
-          } else if (stage === 3) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Verification: Protocol Atlas-3 complete. Overflow lanes active. Exit rates normal.", severity: "success" },
-              ...timelineEvents
-            ];
-            activeScenario = null;
-          }
-        } else if (name === "heat_stroke") {
-          if (stage === 0) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Observation: Spectator down in Section 112, Row G. Wearables detect vital drops.", severity: "warning" },
-              ...timelineEvents
-            ];
-            activeScenario = { ...activeScenario, stage: 1 };
-          } else if (stage === 1) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Analysis: Heat exhaustion risk. Medical post response recommended.", severity: "warning" },
-              ...timelineEvents
-            ];
-            activeScenario = { ...activeScenario, stage: 2 };
-          } else if (stage === 2) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Prediction: Critical vital threat in ~2 minutes. Recommendation pending operator dispatch.", severity: "critical" },
-              ...timelineEvents
-            ];
-            zones = zones.map(z => z.id === "medical-2" ? {
-              ...z,
-              status: "red",
-              aiRecommendation: "✦ Cortex Recommendation: Medical Dispatch\n- **Reason**: Heat stroke risk from high temperature.\n- **Evidence**: Wearable diagnostics flag body temp > 34C.\n- **Prediction**: Critical vital drop in ~2 minutes.\n- **Confidence**: 96%\n- **Expected Impact**: Deploy volunteer with hydration to Sector F.\n- **Risk**: Sector F guides decrease.\n- **ETA**: 2 minutes.\n- **Affected Roles**: Volunteers, Security, Medical.\n- **Alternative Strategy**: Guide the fan to the nearest air-conditioned fan zone (requires walking 50m).\n- **Rollback Plan**: Recall medical dispatcher if false alert."
-            } : z);
-            const newAlert: Alert = {
-              id: `al-sc-${Date.now()}`,
-              severity: "critical",
-              title: "Spectator Heat Exhaustion",
-              message: "Section 112, Row G spectator needs immediate first aid dispatch.",
-              zone: "Medical Bay 2",
-              timestamp: new Date(),
-              actionRequired: true,
-              acknowledged: false
-            };
-            alerts = [newAlert, ...alerts];
-            activeScenario = { ...activeScenario, stage: 2.5 };
-            if (!state.scenarioStageHeldAt) {
-              setTimeout(() => {
-                const s = get().activeScenario;
-                if (s && s.stage === 2.5) {
-                  get().autoAssignStaff();
-                  get().addTimelineEvent("Cortex AI", "Auto-Resolution: No operator response in 30s. Medical dispatch executed autonomously by Cortex AI.", "warning");
-                  set({ activeScenario: { ...s, stage: 3 }, scenarioStageHeldAt: null });
-                }
-              }, 30000);
-              set({ scenarioStageHeldAt: new Date() });
-            }
-          } else if (stage === 3) {
-            const id = `tle-sc-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: "Cortex AI", message: "Verification: Medical response complete. Spectator stabilized. Learning index updated.", severity: "success" },
-              ...timelineEvents
-            ];
-            activeScenario = null;
-          }
-        }
-      } else {
-        // Autonomously trigger a scenario if none is active (AI Operating System positioning)
-        let triggered = false;
-        if (state.isSimulating && Math.random() > 0.95) {
-          const scenarios = ["heat_stroke", "gate_a_spike", "gate_c_congest", "halftime_rush"] as const;
-          const chosen = scenarios[Math.floor(Math.random() * scenarios.length)];
-          triggered = true;
-          if (chosen === "heat_stroke") {
-            activeScenario = { name: "heat_stroke", stage: 0, maxStages: 3 };
-            timelineEvents = [
-              { id: `tle-auto-${Date.now()}`, timestamp: new Date(), category: "Cortex AI", message: "Autonomous Detection: Section 112 medical anomaly detected.", severity: "warning" },
-              ...timelineEvents
-            ];
-          } else if (chosen === "gate_a_spike") {
-            activeScenario = { name: "goal_scored", stage: 0, maxStages: 3 };
-            timelineEvents = [
-              { id: `tle-auto-${Date.now()}`, timestamp: new Date(), category: "Cortex AI", message: "Autonomous Detection: Goal scored exited spectator surge.", severity: "critical" },
-              ...timelineEvents
-            ];
-          } else if (chosen === "gate_c_congest") {
-            activeScenario = { name: "metro_outage", stage: 0, maxStages: 3 };
-            timelineEvents = [
-              { id: `tle-auto-${Date.now()}`, timestamp: new Date(), category: "Cortex AI", message: "Autonomous Detection: Transit delay at Metro East platform.", severity: "warning" },
-              ...timelineEvents
-            ];
-          } else if (chosen === "halftime_rush") {
-            activeScenario = { name: "storm", stage: 0, maxStages: 3 };
-            timelineEvents = [
-              { id: `tle-auto-${Date.now()}`, timestamp: new Date(), category: "Cortex AI", message: "Autonomous Detection: Lightning threat within 5km radius.", severity: "critical" },
-              ...timelineEvents
-            ];
-          }
-        }
-
-        if (!triggered) {
-          // Routine Drifts if no event scenario is running
-          zones = state.zones.map((zone) => {
-            const delta = randomBetween(-20, 20);
-            const current = Math.max(0, Math.min(zone.capacity, zone.current + delta));
-            const occupancy = (current / zone.capacity) * 100;
-            const sparkline = zone.densitySparkline ? [...zone.densitySparkline.slice(1), occupancy] : [];
-
-            return {
-              ...zone,
-              current: Math.round(current),
-              status: getStatusColor(occupancy),
-              flowRate: zone.flowRate ? Math.max(0, zone.flowRate + randomInt(-8, 8)) : undefined,
-              densitySparkline: sparkline,
-            };
-          });
-
-          // Drift crowd metrics
-          const newOccupancy = randomBetween(89, 93);
-          const newRisk = randomBetween(65, 78);
-          const riskLevel = newRisk < 30 ? "Low" : newRisk < 60 ? "Moderate" : newRisk < 80 ? "High" : "Critical";
-
-          const now = new Date();
-          const timeLabel = `${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`;
-          const newHistory = [
-            ...state.crowd.densityHistory.slice(1),
-            { time: timeLabel, density: Math.round(newOccupancy), predicted: Math.round(newOccupancy + randomBetween(-3, 6)) },
-          ];
-
-          crowd = {
-            ...state.crowd,
-            occupancyRate: Math.round(newOccupancy * 10) / 10,
-            riskScore: Math.round(newRisk),
-            riskLevel: riskLevel as CortexState["crowd"]["riskLevel"],
-            densityHistory: newHistory,
-          };
-
-          // Routine logs
-          if (Math.random() > 0.8) {
-            const categories = ["Security", "Sensor", "AI Analytics", "Facility"];
-            const logs: Record<string, string[]> = {
-              "Security": ["Patrol route sector D cleared", "CCTV diagnostics nominal"],
-              "Sensor": ["Restroom North load normal", "Gate B ticketing rate stable"],
-              "AI Analytics": ["Halftime predictions refined", "Concessions model synced"],
-              "Facility": ["Waste bins recycled", "Light levels balanced"],
-            };
-            const cat = categories[Math.floor(Math.random() * categories.length)];
-            const msg = logs[cat][Math.floor(Math.random() * logs[cat].length)];
-            const id = `tle-tick-${Date.now()}`;
-            timelineEvents = [
-              { id, timestamp: new Date(), category: cat, message: msg, severity: "info" as const },
-              ...state.timelineEvents.slice(0, 49)
-            ];
-          }
-        }
       }
-
-      // If active protocol is in success state, automatically clear it after a short delay
-      // but let it live for one tick cycle first.
-      const activeProtocol = state.activeProtocol;
-      if (activeProtocol && activeProtocol.status === "success") {
-        // Keep it in success state so UI has time to display checkmark,
-        // but let's clear it if the user reloads or on long periods.
-      }
-
-      return {
-        zones,
-        vendors,
-        transport,
-        timelineEvents,
-        alerts,
-        crowd,
-        activeScenario,
-        activeProtocol,
-        lastUpdated: new Date(),
-      };
     });
+  },
+
+  tickAsync: async () => {
+    const state = get();
+    if (!state.activeScenario) {
+      // If no active scenario, just do routine tick
+      state.tick();
+      return;
+    }
+
+    if (state.scenarioStageHeldAt) {
+      // Wait for operator
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/cortex/simulate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scenario: state.activeScenario.name,
+          currentState: state,
+        }),
+      });
+      const data = await res.json();
+      
+      if (!data.error) {
+        set((prevState) => {
+          let newAlerts = prevState.alerts;
+          if (data.newAlerts?.length > 0) {
+            newAlerts = [...data.newAlerts.map((a: any) => ({ ...a, id: `al-${Date.now()}-${Math.random()}`, timestamp: new Date() })), ...prevState.alerts];
+          }
+
+          let newEvents = prevState.timelineEvents;
+          if (data.newTimelineEvents?.length > 0) {
+            newEvents = [...data.newTimelineEvents.map((e: any) => ({ ...e, id: `tle-${Date.now()}-${Math.random()}`, timestamp: new Date() })), ...prevState.timelineEvents].slice(0, 50);
+          }
+
+          let newZones = prevState.zones;
+          if (data.zoneUpdates?.length > 0) {
+            newZones = prevState.zones.map(z => {
+              const update = data.zoneUpdates.find((u: any) => u.id === z.id);
+              return update ? { ...z, ...update } : z;
+            });
+          }
+
+          // Trigger holding for operator approval at critical stages
+          let heldAt = null;
+          if (data.nextStage === 2.5) {
+             heldAt = new Date();
+             setTimeout(() => {
+                const s = get().activeScenario;
+                if (s && s.stage === 2.5) {
+                  get().addTimelineEvent("Cortex AI", "Auto-Resolution: Protocol executed autonomously.", "warning");
+                  set({ activeScenario: { ...s, stage: 3 }, scenarioStageHeldAt: null });
+                }
+             }, 30000);
+          }
+
+          return {
+            ...prevState,
+            alerts: newAlerts,
+            timelineEvents: newEvents,
+            zones: newZones,
+            scenarioStageHeldAt: heldAt,
+            activeScenario: { ...prevState.activeScenario!, stage: data.nextStage },
+            crowd: {
+              ...prevState.crowd,
+              riskScore: data.riskScore || prevState.crowd.riskScore,
+              riskLevel: data.riskLevel || prevState.crowd.riskLevel,
+            }
+          };
+        });
+      }
+    } catch (err) {
+      console.error("Failed to execute dynamic tick", err);
+    }
   },
 
   autoAssignStaff: () => {

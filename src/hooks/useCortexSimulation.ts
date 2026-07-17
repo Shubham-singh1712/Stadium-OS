@@ -8,14 +8,14 @@ import { useCortexStore } from "@/stores/cortexStore";
  * Call once at the app root level.
  */
 export function useCortexSimulation(intervalMs = 4000) {
-  const { tick, startSimulation, stopSimulation } = useCortexStore();
+  const { tickAsync, startSimulation, stopSimulation } = useCortexStore();
 
   useEffect(() => {
     startSimulation();
-    const interval = setInterval(tick, intervalMs);
+    const interval = setInterval(tickAsync, intervalMs);
     return () => {
       clearInterval(interval);
       stopSimulation();
     };
-  }, [tick, startSimulation, stopSimulation, intervalMs]);
+  }, [tickAsync, startSimulation, stopSimulation, intervalMs]);
 }

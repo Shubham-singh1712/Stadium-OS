@@ -9,6 +9,8 @@ export function useGateCardLogic(zone: StadiumZone, actionType: "redirect" | "mo
     startProtocol, 
     setProtocolStatus, 
     cancelProtocol, 
+    abortProtocol,
+    toggleChecklistItem,
     toggleMonitoring 
   } = useCortexStore();
 
@@ -200,5 +202,8 @@ export function useGateCardLogic(zone: StadiumZone, actionType: "redirect" | "mo
     handleActionClick,
     approveProtocol,
     cancelProtocolClick,
+    abortProtocol,
+    toggleChecklistItem,
+    activeProtocol,
   };
 }

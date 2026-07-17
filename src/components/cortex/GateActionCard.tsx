@@ -35,6 +35,9 @@ export function GateActionCard({ zoneId, actionType, description, destinationZon
     handleActionClick,
     approveProtocol,
     cancelProtocolClick,
+    abortProtocol,
+    toggleChecklistItem,
+    activeProtocol,
   } = useGateCardLogic(zone, actionType, zoneId);
 
   const formatTime = (sec: number) => {
@@ -67,7 +70,7 @@ export function GateActionCard({ zoneId, actionType, description, destinationZon
   return (
     <motion.div
       className="glass-card"
-      layout
+      layout="position"
       animate={workflowStep === "success" ? {
         borderColor: "rgba(16, 185, 129, 0.5)",
         boxShadow: "0 0 24px rgba(16, 185, 129, 0.2)",
@@ -205,6 +208,9 @@ export function GateActionCard({ zoneId, actionType, description, destinationZon
         approveProtocol={approveProtocol}
         cancelProtocolClick={cancelProtocolClick}
         handleActionClick={handleActionClick}
+        abortProtocol={abortProtocol}
+        toggleChecklistItem={toggleChecklistItem}
+        activeProtocol={activeProtocol}
       />
     </motion.div>
   );

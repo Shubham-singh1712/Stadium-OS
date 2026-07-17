@@ -11,6 +11,7 @@ export default function FanPage() {
   const pathname = usePathname();
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
+  const activeProtocol = useCortexStore((state) => state.activeProtocol);
   
   const userName = user?.name ? user.name.split(" ")[0] : "Alex";
   const userSector = user?.sector ?? "Section 112, Row G, Seat 14";
@@ -26,6 +27,31 @@ export default function FanPage() {
           Your seat: {userSector} · USA 🇺🇸 vs BRA 🇧🇷 · 73′
         </p>
       </div>
+
+      {/* Dynamic Sync Alert from Security Dashboard */}
+      {activeProtocol && (activeProtocol.status === "executing" || activeProtocol.status === "verifying" || activeProtocol.status === "success") && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            padding: "1rem",
+            background: "rgba(59, 130, 246, 0.15)",
+            border: "1px solid hsl(210, 90%, 50%)",
+            borderRadius: "var(--radius-sm)",
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem"
+          }}
+        >
+          <span style={{ fontSize: "2rem" }}>🔀</span>
+          <div>
+            <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "hsl(210, 90%, 65%)" }}>Cortex AI Route Update: {activeProtocol.protocolName} Active</h3>
+            <p style={{ fontSize: "0.875rem", color: "hsl(var(--foreground-muted))" }}>
+              To ensure safety and speed, your exit route has been updated. Please follow the blue chevron guides towards {activeProtocol.zoneId === 'gate-a' ? 'Gate C' : 'the alternative exit'}.
+            </p>
+          </div>
+        </motion.div>
+      )}
 
       {/* Top CortexCard */}
       <CortexCard
