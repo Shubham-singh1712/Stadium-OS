@@ -102,7 +102,7 @@ export default function CrowdIntelPage() {
         {/* Density trend */}
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Density vs. Prediction</h3>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={220} role="img" aria-label="Crowd density breakdown chart">
             <AreaChart data={crowd.densityHistory}>
               <defs>
                 <linearGradient id="dg1" x1="0" y1="0" x2="0" y2="1">
@@ -131,7 +131,7 @@ export default function CrowdIntelPage() {
         {/* Zone occupancy */}
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Zone Occupancy</h3>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={220} role="img" aria-label="Gate flow rates chart">
             <BarChart
               data={zones.slice(0, 8).map(z => ({
                 name: z.name.replace("Gate ", "G").replace("Food Court ", "FC").replace("Parking ", "P").replace("Restroom ", "R"),

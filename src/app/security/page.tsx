@@ -82,7 +82,7 @@ export default function SecurityPage() {
           <h4>Live Crowd Density Summary</h4>
           <p>The actual crowd density has peaked at {crowd.occupancyRate}%, with risk level classified as {crowd.riskLevel}.</p>
         </div>
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={220} role="img" aria-label="Security operations crowd density chart">
           <AreaChart data={crowd.densityHistory}>
             <defs>
               <linearGradient id="secGrad" x1="0" y1="0" x2="0" y2="1">

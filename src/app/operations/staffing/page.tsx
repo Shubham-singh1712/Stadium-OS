@@ -139,7 +139,7 @@ export default function StaffingPage() {
               ))}
             </ul>
           </div>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={280} role="img" aria-label="Staffing allocation and efficiency chart">
             <BarChart data={sectorGaps} layout="vertical" barSize={16}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" horizontal={false} />
               <XAxis type="number" tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />

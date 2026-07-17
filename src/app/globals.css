@@ -425,5 +425,12 @@ h1, h2, h3, h4, h5, h6 {
   color: hsl(var(--foreground-subtle));
   margin-top: 0.25rem;
 }
-
-
+/* Override Next.js Turbopack Dev Indicator position to avoid overlapping Demo Controls */
+nextjs-portal {
+  display: block !important;
+  position: fixed !important;
+  left: 24px !important;
+  bottom: 80px !important;
+  padding-left: env(safe-area-inset-left) !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
+}

@@ -113,7 +113,7 @@ export default function SustainabilityPage() {
         {/* Carbon trend */}
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Carbon Footprint Trend (tons)</h3>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={200} role="img" aria-label="Energy consumption and carbon footprint chart">
             <AreaChart data={trendData}>
               <defs>
                 <linearGradient id="cGrad" x1="0" y1="0" x2="0" y2="1">
@@ -137,7 +137,7 @@ export default function SustainabilityPage() {
         {/* Radar */}
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Eco Performance Radar</h3>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={200} role="img" aria-label="Sustainability metrics radar chart">
             <RadarChart data={radarData}>
               <PolarGrid stroke="hsl(215 20% 20%)" />
               <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: "hsl(215 15% 50%)" }} />

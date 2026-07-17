@@ -58,9 +58,9 @@ export function HeaderBar({ roleMenuOpen, setRoleMenuOpen }: HeaderProps) {
     router.push("/");
   };
 
-  const switchRole = (newRole: UserRole) => {
+  const switchRole = async (newRole: UserRole) => {
     const { setRole } = useAuthStore.getState();
-    setRole(newRole);
+    await setRole(newRole);
     router.push(`/${newRole}`);
     setRoleMenuOpen(false);
   };

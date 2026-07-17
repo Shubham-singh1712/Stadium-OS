@@ -69,7 +69,7 @@ export function CopilotMessageBubble({ msg }: { msg: CopilotMessage }) {
                       <h5>Chart: {chart.title}</h5>
                       <p>Bar chart data showing metrics for {chart.keys.join(", ")}.</p>
                     </div>
-                    <ResponsiveContainer width="100%" height={140}>
+                    <ResponsiveContainer width="100%" height={140} role="img" aria-label="Copilot metric analysis chart">
                       <BarChart data={chart.data} barSize={20}>
                         <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" vertical={false} />
                         <XAxis dataKey={Object.keys(chart.data[0] ?? {})[0]} tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />

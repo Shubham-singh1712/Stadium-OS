@@ -54,7 +54,9 @@ export function DashboardShell({ children }: DashboardShellProps) {
         />
 
         {/* Dynamic page content */}
-        <main id="main-content" style={{ flex: 1, overflowY: "auto", padding: "1.5rem" }}>
+        <main id="main-content" style={{ flex: 1, overflowY: "auto", padding: "1.5rem", position: "relative" }}>
+          {/* Simulation Launcher (Top of document flow) */}
+          <DemoControls />
           {children}
         </main>
       </div>
@@ -67,9 +69,6 @@ export function DashboardShell({ children }: DashboardShellProps) {
         simulatorOpen={simulatorOpen} 
         setSimulatorOpen={setSimulatorOpen} 
       />
-
-      {/* Demo Force Trigger Controls */}
-      <DemoControls />
     </div>
   );
 }

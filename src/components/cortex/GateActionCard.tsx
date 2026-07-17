@@ -82,8 +82,8 @@ export function GateActionCard({ zoneId, actionType, description, destinationZon
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: "1rem",
-        padding: "1.25rem",
+        gap: "0.5rem",
+        padding: "0.75rem",
         position: "relative",
         overflow: "hidden",
         borderTop: `3px solid ${statusColor}`,
@@ -95,7 +95,7 @@ export function GateActionCard({ zoneId, actionType, description, destinationZon
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <h3 style={{ fontWeight: 800, fontSize: "1.125rem" }}>{zone.name}</h3>
+            <h3 style={{ fontWeight: 800, fontSize: "1rem" }}>{zone.name}</h3>
             {isMonitoring ? (
               <span className="live-dot" style={{ background: "hsl(210 90% 60%)", boxShadow: "0 0 8px hsl(210 90% 60%)" }} />
             ) : workflowStep !== "idle" ? (
@@ -112,9 +112,9 @@ export function GateActionCard({ zoneId, actionType, description, destinationZon
         {/* Status Badge */}
         <span
           style={{
-            fontSize: "0.7rem",
+            fontSize: "0.65rem",
             fontWeight: 700,
-            padding: "0.2rem 0.5rem",
+            padding: "0.15rem 0.4rem",
             borderRadius: "999px",
             background: workflowStep !== "idle"
               ? "rgba(59, 130, 246, 0.15)"
@@ -153,11 +153,11 @@ export function GateActionCard({ zoneId, actionType, description, destinationZon
       </div>
 
       {/* Main density value */}
-      <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", margin: "4px 0 0px 0" }}>
-        <span style={{ fontSize: "2.25rem", fontWeight: 900, color: statusColor, letterSpacing: "-0.04em" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", margin: "0" }}>
+        <span style={{ fontSize: "1.75rem", fontWeight: 900, color: statusColor, letterSpacing: "-0.04em" }}>
           {displayPct}%
         </span>
-        <span style={{ fontSize: "0.75rem", color: "hsl(var(--foreground-subtle))" }}>
+        <span style={{ fontSize: "0.7rem", color: "hsl(var(--foreground-subtle))" }}>
           density ({zone.current} / {zone.capacity})
         </span>
       </div>

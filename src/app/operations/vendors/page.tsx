@@ -60,7 +60,7 @@ export default function VendorsPage() {
               ))}
             </ul>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={220} role="img" aria-label="Vendor queues and wait times chart">
             <BarChart data={revenueData} barSize={24}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" vertical={false} />
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
@@ -81,7 +81,7 @@ export default function VendorsPage() {
               ))}
             </ul>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={220} role="img" aria-label="Vendor revenue and efficiency chart">
             <BarChart data={revenueData} barSize={24}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" vertical={false} />
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />

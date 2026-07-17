@@ -6,7 +6,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isHydrating: boolean;
   setUser: (user: User) => void;
-  setRole: (role: UserRole) => void;
+  setRole: (role: UserRole) => Promise<void>;
   logout: () => void;
   setHydrating: (state: boolean) => void;
 }
@@ -55,28 +55,27 @@ export const useAuthStore = create<AuthState>()((set) => ({
       }).catch(() => {});
     }
   },
-  setRole: (role) => {
+  setRole: async (role) => {
     // Avoid synchronous placeholder state to prevent wrong role flashes
     // Instead, immediately rely on hydration sync
     set({ isHydrating: true });
 
     if (typeof window !== "undefined") {
-      fetch("/api/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.user) {
-            set({ user: data.user, isAuthenticated: true, isHydrating: false });
-          } else {
-            set({ isHydrating: false });
-          }
-        })
-        .catch(() => {
-          set({ isHydrating: false });
+      try {
+        const res = await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role }),
         });
+        const data = await res.json();
+        if (data.user) {
+          set({ user: data.user, isAuthenticated: true, isHydrating: false });
+        } else {
+          set({ isHydrating: false });
+        }
+      } catch (err) {
+        set({ isHydrating: false });
+      }
     }
   },
   logout: () => {

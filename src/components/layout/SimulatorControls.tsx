@@ -44,10 +44,10 @@ export function SimulatorControls({ simulatorOpen, setSimulatorOpen }: Simulator
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
               <span style={{ width: 8, height: 8, borderRadius: "50%", background: isSimulating ? "hsl(152,70%,50%)" : "hsl(var(--foreground-muted))" }} />
               <span style={{ fontSize: "0.6875rem", fontWeight: 700, letterSpacing: "0.05em", color: "hsl(var(--foreground-muted))", textTransform: "uppercase" }}>
-                AI SIMULATOR engine {isSimulating ? "(active)" : "(paused)"}
+                Simulation Center {isSimulating ? "(active)" : "(paused)"}
               </span>
             </div>
-            <span style={{ fontSize: "0.75rem", color: "hsl(var(--foreground-subtle))" }}>Inject simulated incident updates live</span>
+            <span style={{ fontSize: "0.75rem", color: "hsl(var(--foreground-subtle))" }}>Launch dynamic scenarios to test AI routing</span>
           </div>
 
           <div style={{ display: "flex", gap: "8px" }}>

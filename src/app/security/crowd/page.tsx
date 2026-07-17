@@ -347,7 +347,7 @@ export default function SecurityCrowdPage() {
           <h4>Live Crowd Density History Summary</h4>
           <p>The actual crowd density peaks at {crowd.occupancyRate}%, with risk level classified as {crowd.riskLevel}.</p>
         </div>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={300} role="img" aria-label="Sector density distribution chart">
           <AreaChart data={crowd.densityHistory}>
             <defs>
               <linearGradient id="cmGrad" x1="0" y1="0" x2="0" y2="1">
