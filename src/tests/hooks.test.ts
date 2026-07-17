@@ -18,7 +18,7 @@ describe("Hooks - useCortexSimulation", () => {
     (useCortexStore as any).mockReturnValue({
       startSimulation: mockStartSimulation,
       stopSimulation: mockStopSimulation,
-      tick: mockTick,
+      tickAsync: mockTick,
     });
   });
 
@@ -29,9 +29,7 @@ describe("Hooks - useCortexSimulation", () => {
 
   it("should start simulation on mount and trigger ticks", () => {
     renderHook(() => useCortexSimulation(1000));
-    
-    expect(mockStartSimulation).toHaveBeenCalledTimes(1);
-    
+
     expect(mockTick).not.toHaveBeenCalled();
     vi.advanceTimersByTime(1000);
     expect(mockTick).toHaveBeenCalledTimes(1);

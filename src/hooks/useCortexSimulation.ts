@@ -12,7 +12,9 @@ export function useCortexSimulation(intervalMs = 4000) {
 
   useEffect(() => {
     startSimulation();
-    const interval = setInterval(tickAsync, intervalMs);
+    const interval = setInterval(() => {
+      if (typeof tickAsync === 'function') tickAsync();
+    }, intervalMs);
     return () => {
       clearInterval(interval);
       stopSimulation();

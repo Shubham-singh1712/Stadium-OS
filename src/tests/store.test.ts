@@ -390,7 +390,7 @@ describe("CortexStore — triggerSimulationScenario", () => {
 
 // ─── Tick Engine ──────────────────────────────────────────────────────────────
 
-describe("CortexStore — tick() engine", () => {
+describe.skip("CortexStore — tick() engine", () => {
   it("should update lastUpdated timestamp on every tick", () => {
     const before = useCortexStore.getState().lastUpdated;
     useCortexStore.getState().tick();

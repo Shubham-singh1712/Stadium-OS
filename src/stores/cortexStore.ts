@@ -411,7 +411,22 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       let vendors = state.vendors;
       let transport = state.transport;
 
+      // Natural drifting in idle state
+      if (!activeScenario) {
+        zones = zones.map(z => ({
+          ...z,
+          current: Math.max(0, Math.min(z.capacity, z.current + Math.floor(Math.random() * 20) - 10))
+        }));
       }
+
+      return {
+        zones,
+        crowd,
+        timelineEvents,
+        alerts,
+        vendors,
+        transport
+      };
     });
   },
 
