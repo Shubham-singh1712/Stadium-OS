@@ -318,10 +318,18 @@ export default function FanInterpreterPage() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: "0.375rem", padding: "0.25rem", background: "hsl(var(--surface-2))", borderRadius: "var(--radius-md)", width: "fit-content" }}>
+      <div
+        role="tablist"
+        aria-label="Interpreter modes"
+        style={{ display: "flex", gap: "0.375rem", padding: "0.25rem", background: "hsl(var(--surface-2))", borderRadius: "var(--radius-md)", width: "fit-content" }}
+      >
         {(["voice", "conversation", "text", "sign"] as const).map((tab) => (
           <button
             key={tab}
+            role="tab"
+            aria-selected={activeTab === tab}
+            id={`tab-${tab}`}
+            aria-controls={`panel-${tab}`}
             onClick={() => setActiveTab(tab)}
             style={{
               padding: "0.5rem 1.25rem", borderRadius: "var(--radius-sm)",
@@ -346,7 +354,13 @@ export default function FanInterpreterPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           {/* VOICE TRANSLATION */}
           {activeTab === "voice" && (
-            <div className="glass-card" style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "2rem", gap: "1.5rem" }}>
+            <div
+              role="tabpanel"
+              id="panel-voice"
+              aria-labelledby="tab-voice"
+              className="glass-card"
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "2rem", gap: "1.5rem" }}
+            >
               <h3 style={{ fontWeight: 600 }}>🎙️ Tap to Speak</h3>
               <p style={{ fontSize: "0.8125rem", color: "hsl(var(--foreground-muted))", textAlign: "center" }}>
                 Speak in your native language. Cortex will automatically translate and read it aloud.
@@ -424,7 +438,13 @@ export default function FanInterpreterPage() {
 
           {/* TWO-WAY CONVERSATION */}
           {activeTab === "conversation" && (
-            <div className="glass-card" style={{ display: "flex", flexDirection: "column", height: "450px" }}>
+            <div
+              role="tabpanel"
+              id="panel-conversation"
+              aria-labelledby="tab-conversation"
+              className="glass-card"
+              style={{ display: "flex", flexDirection: "column", height: "450px" }}
+            >
               <div style={{ padding: "1rem", borderBottom: "1px solid hsl(var(--border))", display: "flex", justifyContent: "space-between" }}>
                 <span style={{ fontWeight: 600 }}>💬 Two-way Conversation Mode</span>
                 <span style={{ fontSize: "0.75rem", color: "hsl(var(--foreground-muted))" }}>Fan 🇪🇸 ⟷ Volunteer 🇺🇸</span>
@@ -489,7 +509,13 @@ export default function FanInterpreterPage() {
 
           {/* TEXT TRANSLATION */}
           {activeTab === "text" && (
-            <div className="glass-card" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <div
+              role="tabpanel"
+              id="panel-text"
+              aria-labelledby="tab-text"
+              className="glass-card"
+              style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+            >
               <h3 style={{ fontWeight: 600 }}>📝 Manual Text Translation</h3>
               <form onSubmit={handleTextSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
                 <label htmlFor="interpreter-text-input" className="sr-only">Spanish text to translate</label>
@@ -512,7 +538,13 @@ export default function FanInterpreterPage() {
 
           {/* CAMERA SIGN TRANSLATION */}
           {activeTab === "sign" && (
-            <div className="glass-card" style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <div
+              role="tabpanel"
+              id="panel-sign"
+              aria-labelledby="tab-sign"
+              className="glass-card"
+              style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}
+            >
               <h3 style={{ fontWeight: 600 }}>📷 Sign Camera OCR Upload Simulation</h3>
               <p style={{ fontSize: "0.8125rem", color: "hsl(var(--foreground-muted))" }}>
                 Upload or capture a photo of a stadium gateway or concourse sign to scan and translate it.

@@ -148,6 +148,7 @@ export function SidebarNav({ sidebarOpen, setSidebarOpen, simulatorOpen, setSimu
             <Link
               key={item.href}
               href={item.href}
+              aria-label={item.label}
               title={!sidebarOpen ? item.label : undefined}
               style={{
                 display: "flex", alignItems: "center",

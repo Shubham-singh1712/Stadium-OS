@@ -3,7 +3,7 @@
 import { useAuthStore } from "@/stores/authStore";
 import { useCortexStore } from "@/stores/cortexStore";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { UserRole } from "@/types";
 
@@ -47,6 +47,18 @@ export function HeaderBar({ roleMenuOpen, setRoleMenuOpen }: HeaderProps) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [roleMenuOpen, setRoleMenuOpen]);
+
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (roleMenuOpen && menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setRoleMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [roleMenuOpen, setRoleMenuOpen]);
 
   const role = user?.role ?? "fan";
@@ -132,7 +144,7 @@ export function HeaderBar({ roleMenuOpen, setRoleMenuOpen }: HeaderProps) {
       </span>
 
       {/* Role switcher */}
-      <div style={{ position: "relative" }}>
+      <div ref={menuRef} style={{ position: "relative" }}>
         <button
           onClick={() => setRoleMenuOpen(!roleMenuOpen)}
           aria-expanded={roleMenuOpen}
@@ -144,7 +156,6 @@ export function HeaderBar({ roleMenuOpen, setRoleMenuOpen }: HeaderProps) {
             cursor: "pointer", fontSize: "0.8125rem", fontWeight: 500,
             color: "hsl(var(--foreground))",
           }}
-          aria-label="Switch role"
         >
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: roleColor }} />
           {ROLE_LABELS[role]}
