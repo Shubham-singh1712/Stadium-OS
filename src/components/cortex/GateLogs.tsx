@@ -101,10 +101,10 @@ export function GateLogs({
           )}
         </div>
       ) : (
-        <div 
-          style={{ 
-            fontSize: "0.65rem", 
-            color: "hsl(var(--foreground-muted))", 
+        <div
+          style={{
+            fontSize: "0.65rem",
+            color: "hsl(var(--foreground-muted))",
             lineHeight: 1.4,
             display: "-webkit-box",
             WebkitLineClamp: 2,
@@ -113,11 +113,15 @@ export function GateLogs({
             textOverflow: "ellipsis",
             marginTop: "2px"
           }}
-          dangerouslySetInnerHTML={{ 
-            __html: (zone.aiRecommendation || "Flow rate is nominal. Telemetry checks compliant.")
-              .replace(/\*\*(.*?)\*\*/g, "<strong style='color:#fff'>$1</strong>") 
-          }}
-        />
+        >
+          {(zone.aiRecommendation || "Flow rate is nominal. Telemetry checks compliant.")
+            .split(/\*\*(.*?)\*\*/g)
+            .map((part, i) =>
+              i % 2 === 1
+                ? <strong key={i} style={{ color: "#fff" }}>{part}</strong>
+                : <span key={i}>{part}</span>
+            )}
+        </div>
       )}
     </div>
   );

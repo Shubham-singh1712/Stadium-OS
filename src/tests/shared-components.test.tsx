@@ -2,7 +2,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import { DemoControls } from "../components/layout/DemoControls";
 import { SimulatorControls } from "../components/layout/SimulatorControls";
 import { GateSparkline } from "../components/cortex/GateSparkline";
 import { GateTelemetry } from "../components/cortex/GateTelemetry";

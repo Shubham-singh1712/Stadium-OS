@@ -4,7 +4,6 @@ import { useCortexStore } from "@/stores/cortexStore";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
-import { getStatusColor } from "@/lib/utils";
 import { showCortexToast } from "@/lib/cortexToast";
 import type { StadiumZone } from "@/types";
 

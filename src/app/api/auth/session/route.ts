@@ -1,6 +1,27 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { z } from "zod";
 import { User, UserRole } from "@/types";
+
+// ─── Zod Schemas ──────────────────────────────────────────────────────────────
+
+const userRoleSchema = z.enum(["fan", "volunteer", "security", "operations"]);
+
+const sessionUserSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  role: userRoleSchema,
+  language: z.string(),
+  sector: z.string().optional(),
+  badgeId: z.string().optional(),
+});
+
+const postBodySchema = z.union([
+  z.object({ role: userRoleSchema, user: z.undefined().optional() }),
+  z.object({ user: sessionUserSchema, role: z.undefined().optional() }),
+]);
+
+// ─── Demo User Registry ────────────────────────────────────────────────────────
 
 const DEMO_USERS: Record<UserRole, User> = {
   fan: {
@@ -34,6 +55,17 @@ const DEMO_USERS: Record<UserRole, User> = {
   },
 };
 
+// ─── Cookie helpers ────────────────────────────────────────────────────────────
+
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict" as const,
+  path: "/",
+};
+
+// ─── GET /api/auth/session ─────────────────────────────────────────────────────
+
 export async function GET() {
   try {
     const cookieStore = await cookies();
@@ -41,69 +73,84 @@ export async function GET() {
     if (!sessionUser) {
       return NextResponse.json({ user: null });
     }
-    const user = JSON.parse(sessionUser);
-    return NextResponse.json({ user });
-  } catch (error) {
+
+    let raw: unknown;
+    try {
+      raw = JSON.parse(sessionUser);
+    } catch {
+      // Cookie is malformed – clear it and return null
+      cookieStore.set("session_user", "", { ...COOKIE_OPTIONS, expires: new Date(0) });
+      cookieStore.set("user_role", "", { ...COOKIE_OPTIONS, expires: new Date(0) });
+      return NextResponse.json({ user: null });
+    }
+
+    const parsed = sessionUserSchema.safeParse(raw);
+    if (!parsed.success) {
+      // Cookie value doesn't match expected schema – reject it
+      cookieStore.set("session_user", "", { ...COOKIE_OPTIONS, expires: new Date(0) });
+      cookieStore.set("user_role", "", { ...COOKIE_OPTIONS, expires: new Date(0) });
+      return NextResponse.json({ user: null });
+    }
+
+    return NextResponse.json({ user: parsed.data });
+  } catch {
     return NextResponse.json({ user: null });
   }
 }
 
+// ─── POST /api/auth/session ────────────────────────────────────────────────────
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const role = body.role as UserRole;
-    let user = body.user as User | undefined;
+    let rawBody: unknown;
+    try {
+      rawBody = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Malformed JSON body" }, { status: 400 });
+    }
 
-    if (role && DEMO_USERS[role]) {
-      user = DEMO_USERS[role];
-    } else if (user && user.role && DEMO_USERS[user.role]) {
-      const demoUser = DEMO_USERS[user.role];
-      if (user.id !== demoUser.id || user.name !== demoUser.name) {
+    const parsed = postBodySchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid request body", details: parsed.error.flatten() },
+        { status: 400 }
+      );
+    }
+
+    const body = parsed.data;
+    let user: User;
+
+    if (body.role) {
+      user = DEMO_USERS[body.role];
+    } else if (body.user) {
+      const demoUser = DEMO_USERS[body.user.role];
+      if (body.user.id !== demoUser.id || body.user.name !== demoUser.name) {
         return NextResponse.json({ error: "Unauthorized user credentials" }, { status: 403 });
       }
+      user = demoUser;
     } else {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
     }
 
     const cookieStore = await cookies();
-    cookieStore.set("session_user", JSON.stringify(user), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-    });
-    cookieStore.set("user_role", user.role, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-    });
+    cookieStore.set("session_user", JSON.stringify(user), COOKIE_OPTIONS);
+    cookieStore.set("user_role", user.role, COOKIE_OPTIONS);
 
     return NextResponse.json({ user });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Authentication failed" }, { status: 500 });
   }
 }
 
+// ─── DELETE /api/auth/session ──────────────────────────────────────────────────
+
 export async function DELETE() {
   try {
     const cookieStore = await cookies();
-    cookieStore.set("session_user", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      expires: new Date(0),
-    });
-    cookieStore.set("user_role", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      expires: new Date(0),
-    });
+    cookieStore.set("session_user", "", { ...COOKIE_OPTIONS, expires: new Date(0) });
+    cookieStore.set("user_role", "", { ...COOKIE_OPTIONS, expires: new Date(0) });
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false }, { status: 500 });
   }
 }

@@ -2,9 +2,7 @@
 
 import { useVolunteerStore } from "@/stores/volunteerStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
-import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import type { TaskPriority } from "@/types";
 
 const PRIORITY_COLORS: Record<TaskPriority, string> = {
@@ -15,7 +13,6 @@ const PRIORITY_COLORS: Record<TaskPriority, string> = {
 };
 
 export default function VolunteerPage() {
-  const pathname = usePathname();
   const { tasks, acceptTask, completeTask } = useVolunteerStore();
 
   const pending = tasks.filter(t => t.status === "pending");

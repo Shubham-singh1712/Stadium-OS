@@ -16,7 +16,7 @@ interface GateActionCardProps {
   destinationZoneId?: string;
 }
 
-export function GateActionCard({ zoneId, actionType, description, destinationZoneId = "gate-c" }: GateActionCardProps) {
+export function GateActionCard({ zoneId, actionType, description }: GateActionCardProps) {
   const zones = useCortexStore((state) => state.zones);
   const zone = zones.find(z => z.id === zoneId);
 

@@ -6,10 +6,9 @@ import {
   VendorMetrics,
   SustainabilityMetrics,
   TransportOption,
-  AlertSeverity,
   TimelineEvent,
 } from "@/types";
-import { randomBetween, randomInt, getStatusColor } from "@/lib/utils";
+import { getStatusColor } from "@/lib/utils";
 import {
   ENHANCED_INITIAL_ZONES,
   generateCrowdHistory,
@@ -170,9 +169,8 @@ export const useCortexStore = create<CortexState>((set, get) => ({
   },
 
   triggerSimulationScenario: (scenario) => {
-    const { addAlert, addToast, addTimelineEvent } = get();
+    const { addToast } = get();
 
-    // Map developer console clicks to structured event cascades
     if (scenario === "heat_stroke") {
       set({ activeScenario: { name: "heat_stroke", stage: 0, maxStages: 3 } });
       addToast("🩺 AI Alert", "Medical emergency scenario initialized.", "warning");
@@ -249,7 +247,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
 
   abortProtocol: () => {
     const { addToast, addTimelineEvent } = get();
-    set((state) => {
+    set(() => {
       addToast("🛑 Protocol Aborted", "Active protocol execution aborted and rolled back.", "warning");
       addTimelineEvent("Security", "Operator aborted protocol. Restoring previous state.", "warning");
       return { activeProtocol: null };

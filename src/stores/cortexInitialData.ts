@@ -1,5 +1,5 @@
 import { StadiumZone, Alert, VendorMetrics, TransportOption, TimelineEvent } from "@/types";
-import { randomInt, getStatusColor } from "@/lib/utils";
+import { randomInt } from "@/lib/utils";
 
 const INITIAL_ZONES: StadiumZone[] = [
   { 

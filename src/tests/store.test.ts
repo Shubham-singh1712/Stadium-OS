@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { useCortexStore } from "../stores/cortexStore";
 import { ENHANCED_INITIAL_ZONES } from "../stores/cortexInitialData";
 

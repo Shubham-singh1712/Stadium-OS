@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useCortexStore } from "@/stores/cortexStore";
-import { MetricCard } from "@/components/ui/MetricCard";
 import { OperationsKPIs } from "@/components/operations/OperationsKPIs";
 import { OperationsTimeline } from "@/components/operations/OperationsTimeline";
 import { CortexCard } from "@/components/cortex/CortexCard";
@@ -57,8 +55,6 @@ export default function OperationsPage() {
 
   const criticalZones = zones.filter((z) => z.status === "red").length;
   const warningZones = zones.filter((z) => z.status === "yellow").length;
-  const activeAlerts = alerts.filter((a) => !a.acknowledged).length;
-  const totalRevenue = vendors.reduce((sum, v) => sum + v.revenue, 0);
   // Zone type counts for bar chart
   const zoneData = [
     { name: "Gates", green: zones.filter(z => z.type === "gate" && z.status === "green").length, yellow: zones.filter(z => z.type === "gate" && z.status === "yellow").length, red: zones.filter(z => z.type === "gate" && z.status === "red").length },

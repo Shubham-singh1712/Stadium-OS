@@ -88,23 +88,6 @@ export default function CopilotPage() {
     }
   };
 
-  const formatContent = (content: string) => {
-    return content
-      .split("\n")
-      .map((line, i) => {
-        if (line.startsWith("**") && line.endsWith("**")) {
-          return <p key={i} style={{ fontWeight: 700, color: "hsl(var(--foreground))", marginBottom: "0.5rem" }}>{line.replace(/\*\*/g, "")}</p>;
-        }
-        if (line.startsWith("- ")) {
-          return <p key={i} style={{ paddingLeft: "1rem", color: "hsl(var(--foreground-muted))", fontSize: "0.9rem", marginBottom: "0.25rem" }}>• {line.slice(2)}</p>;
-        }
-        if (line.match(/^\d+\./)) {
-          return <p key={i} style={{ paddingLeft: "1rem", color: "hsl(var(--foreground-muted))", fontSize: "0.9rem", marginBottom: "0.25rem" }}>{line}</p>;
-        }
-        if (line === "") return <div key={i} style={{ height: "0.5rem" }} />;
-        return <p key={i} style={{ color: "hsl(var(--foreground-muted))", fontSize: "0.9rem", lineHeight: 1.7 }}>{line.replace(/\*\*(.*?)\*\*/g, "$1")}</p>;
-      });
-  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 120px)", gap: "1rem" }}>

@@ -11,34 +11,6 @@ interface AuthState {
   setHydrating: (state: boolean) => void;
 }
 
-const DEMO_USERS: Record<UserRole, User> = {
-  fan: {
-    id: "fan-001",
-    name: "Alex Rivera",
-    role: "fan",
-    language: "en",
-    sector: "Section 112, Row G, Seat 14",
-  },
-  volunteer: {
-    id: "vol-001",
-    name: "Sara Mitchell",
-    role: "volunteer",
-    language: "en",
-    sector: "East Wing",
-  },
-  security: {
-    id: "sec-001",
-    name: "Officer Chen",
-    role: "security",
-    language: "en",
-  },
-  operations: {
-    id: "ops-001",
-    name: "Dr. Priya Nair",
-    role: "operations",
-    language: "en",
-  },
-};
 
 export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
@@ -73,7 +45,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
         } else {
           set({ isHydrating: false });
         }
-      } catch (err) {
+      } catch {
         set({ isHydrating: false });
       }
     }

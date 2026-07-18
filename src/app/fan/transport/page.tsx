@@ -4,8 +4,7 @@ import { useCortexStore } from "@/stores/cortexStore";
 import { useAuthStore } from "@/stores/authStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import type { TransportOption } from "@/types";
 import { toast } from "sonner";
 
@@ -19,7 +18,6 @@ const CROWDING_LABELS: Record<string, string> = {
 
 export default function TransportPage() {
   const transport = useCortexStore((state) => state.transport);
-  const pathname = usePathname();
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
 

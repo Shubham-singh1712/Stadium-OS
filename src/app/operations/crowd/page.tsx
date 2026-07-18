@@ -3,7 +3,6 @@
 import { useCortexStore } from "@/stores/cortexStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 export default function CrowdIntelPage() {

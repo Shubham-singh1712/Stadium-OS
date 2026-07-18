@@ -1,15 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 const LANG_OPTIONS = ["Spanish", "French", "Arabic", "Portuguese", "German", "Japanese", "Chinese"];
 
 export default function TranslatePage() {
-  const pathname = usePathname();
   const [translateFrom, setTranslateFrom] = useState("Fan speaks...");
   const [translateResult, setTranslateResult] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);

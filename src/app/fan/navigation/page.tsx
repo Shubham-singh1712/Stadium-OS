@@ -9,8 +9,7 @@ const StadiumMap = dynamic(() => import("@/components/stadium/StadiumMap").then(
   loading: () => <div style={{ height: "400px", display: "flex", alignItems: "center", justifyContent: "center", background: "hsl(var(--surface-2))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius-md)", color: "hsl(var(--foreground-muted))" }}>Loading Map...</div>,
 });
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import { toast } from "sonner";
 
@@ -26,7 +25,6 @@ const BASE_DESTINATIONS = [
 ];
 
 function NavigationContent() {
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
   const zones = useCortexStore((state) => state.zones);

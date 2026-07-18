@@ -7,8 +7,6 @@ const StadiumMap = dynamic(() => import("@/components/stadium/StadiumMap").then(
   loading: () => <div style={{ height: "400px", display: "flex", alignItems: "center", justifyContent: "center", background: "hsl(var(--surface-2))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius-md)", color: "hsl(var(--foreground-muted))" }}>Loading Map...</div>,
 });
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -23,7 +21,6 @@ const STAFF_DESTINATIONS = [
 ];
 
 export default function VolunteerNavigatePage() {
-  const pathname = usePathname();
   const { tasks } = useVolunteerStore();
 
   const activeTasks = tasks.filter(t => t.status === "accepted" || t.status === "in_progress");
@@ -35,6 +32,7 @@ export default function VolunteerNavigatePage() {
       setNavTarget(activeTasks[0].zone);
       setRouteGenerated(true);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTasks.length]);
 
   const selectDestination = (dest: string) => {

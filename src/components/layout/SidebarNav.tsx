@@ -141,7 +141,7 @@ export function SidebarNav({ sidebarOpen, setSidebarOpen, simulatorOpen, setSimu
       )}
 
       {/* Navigation */}
-      <nav style={{ flex: 1, padding: "0.75rem 0.5rem", overflowY: "auto" }}>
+      <nav aria-label="Main navigation" style={{ flex: 1, padding: "0.75rem 0.5rem", overflowY: "auto" }}>
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/fan" && item.href !== "/volunteer" && item.href !== "/security" && item.href !== "/operations" && pathname.startsWith(item.href));
           return (

@@ -55,6 +55,7 @@ export function useGateCardLogic(zone: StadiumZone, actionType: "redirect" | "mo
       }
     };
     requestAnimationFrame(animateNum);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pct]);
 
   // Sync state variables

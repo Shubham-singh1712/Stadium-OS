@@ -3,9 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useCortexStore } from "@/stores/cortexStore";
-import { CortexCard } from "@/components/cortex/CortexCard";
-import { Mic, Send, Volume2, Copy, RefreshCw, AlertTriangle, MapPin, Compass, Users } from "lucide-react";
+import { Mic, Send, Volume2, Copy, AlertTriangle, Compass, Users } from "lucide-react";
 import { toast } from "sonner";
 
 interface Message {
@@ -66,7 +64,6 @@ export default function FanInterpreterPage() {
       flag: "🇺🇸",
     }
   ]);
-  const [selectedSignId, setSelectedSignId] = useState("");
   const [simulatedOcrText, setSimulatedOcrText] = useState("");
   const [simulatedOcrTranslated, setSimulatedOcrTranslated] = useState("");
   const [ocrLang, setOcrLang] = useState("");

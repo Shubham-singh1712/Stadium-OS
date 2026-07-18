@@ -5,10 +5,9 @@ import { useAuthStore } from "@/stores/authStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function FanPage() {
-  const pathname = usePathname();
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const activeProtocol = useCortexStore((state) => state.activeProtocol);

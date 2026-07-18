@@ -33,7 +33,7 @@ export default async function RootLayout({
       if (user.language) {
         lang = user.language;
       }
-    } catch (e) {}
+    } catch {}
   }
 
   return (

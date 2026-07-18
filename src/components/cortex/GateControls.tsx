@@ -23,7 +23,6 @@ export function GateControls({
   workflowStep,
   execProgress,
   protocolName,
-  protocolTitle,
   isCritical,
   isWarning,
   isMonitoring,

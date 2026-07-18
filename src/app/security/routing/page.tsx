@@ -13,7 +13,6 @@ import { toast } from "sonner";
 export default function SecurityRoutingPage() {
   const addTimelineEvent = useCortexStore((state) => state.addTimelineEvent);
   const executeRedirect = useCortexStore((state) => state.executeRedirect);
-  const executeOverflow = useCortexStore((state) => state.executeOverflow);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>

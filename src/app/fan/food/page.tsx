@@ -5,12 +5,11 @@ import { useAuthStore } from "@/stores/authStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function FoodPage() {
   const zones = useCortexStore((state) => state.zones);
   const vendors = useCortexStore((state) => state.vendors);
-  const pathname = usePathname();
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
 

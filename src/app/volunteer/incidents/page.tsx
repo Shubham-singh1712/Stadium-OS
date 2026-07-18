@@ -3,13 +3,10 @@
 import { useCortexStore } from "@/stores/cortexStore";
 import { useVolunteerStore } from "@/stores/volunteerStore";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function ReportIncidentPage() {
-  const pathname = usePathname();
   const addAlert = useCortexStore((state) => state.addAlert);
   const { addTask } = useVolunteerStore();
 
