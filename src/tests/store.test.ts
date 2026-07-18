@@ -307,6 +307,16 @@ describe("CortexStore — Sustainability Actions", () => {
     useCortexStore.getState().activateGreenMenu();
     expect(useCortexStore.getState().sustainability.aiScore).toBeLessThanOrEqual(100);
   });
+
+  it("should reduce carbonKg after rerouteShuttles", () => {
+    useCortexStore.getState().rerouteShuttles();
+    expect(useCortexStore.getState().sustainability.carbonKg).toBeLessThan(42800);
+  });
+
+  it("should increase wasteRecycledPercent after dispatchWasteSort", () => {
+    useCortexStore.getState().dispatchWasteSort();
+    expect(useCortexStore.getState().sustainability.wasteRecycledPercent).toBeGreaterThan(68);
+  });
 });
 
 // ─── Auto Assign Staff ────────────────────────────────────────────────────────

@@ -4,13 +4,13 @@ import { useCortexStore } from "@/stores/cortexStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, RadarChart, PolarGrid, PolarAngleAxis, Radar } from "recharts";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
 
 export default function SustainabilityPage() {
   const s = useCortexStore((state) => state.sustainability);
-  const addTimelineEvent = useCortexStore((state) => state.addTimelineEvent);
   const activateGreenMenu = useCortexStore((state) => state.activateGreenMenu);
   const dimArenaLights = useCortexStore((state) => state.dimArenaLights);
+  const rerouteShuttles = useCortexStore((state) => state.rerouteShuttles);
+  const dispatchWasteSort = useCortexStore((state) => state.dispatchWasteSort);
 
   const metrics = [
     { label: "Carbon Footprint", value: `${(s.carbonKg / 1000).toFixed(1)}t`, target: `${(s.carbonTarget / 1000).toFixed(0)}t target`, pct: Math.round((s.carbonKg / s.carbonTarget) * 100), color: s.carbonKg < s.carbonTarget * 0.8 ? "hsl(152,70%,50%)" : "hsl(42,95%,58%)", icon: "🌍" },
@@ -181,9 +181,10 @@ export default function SustainabilityPage() {
                       activateGreenMenu();
                     } else if (rec.action === "Apply") {
                       dimArenaLights();
-                    } else {
-                      toast.success(`Action applied: ${rec.title}`);
-                      addTimelineEvent("sustainability", `Applied automated action: ${rec.title}`, "info");
+                    } else if (rec.action === "Reroute") {
+                      rerouteShuttles();
+                    } else if (rec.action === "Dispatch") {
+                      dispatchWasteSort();
                     }
                   }}
                 >

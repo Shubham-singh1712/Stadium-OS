@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useVolunteerStore } from "./volunteerStore";
 import {
   StadiumZone,
   CrowdIntelligence,
@@ -86,6 +87,8 @@ interface CortexState {
   autoAssignStaff: () => void;
   activateGreenMenu: () => void;
   dimArenaLights: () => void;
+  rerouteShuttles: () => void;
+  dispatchWasteSort: () => void;
 }
 
 export const useCortexStore = create<CortexState>((set, get) => ({
@@ -574,6 +577,56 @@ export const useCortexStore = create<CortexState>((set, get) => ({
 
       addToast("💡 Arena Lights Adjusted", "BMS applied -8% arena lighting reduction globally.", "success");
       addTimelineEvent("Operations", "BMS applied -8% lighting reduction globally (-180 kWh impact).", "warning");
+
+      return {
+        ...state,
+        sustainability: updatedSus
+      };
+    });
+  },
+
+  rerouteShuttles: () => {
+    const { addTimelineEvent, addToast } = get();
+    set((state) => {
+      const updatedSus = {
+        ...state.sustainability,
+        carbonKg: Math.max(0, state.sustainability.carbonKg - 400),
+        publicTransportPercent: Math.min(100, state.sustainability.publicTransportPercent + 3),
+        aiScore: Math.min(100, state.sustainability.aiScore + 6)
+      };
+
+      addToast("🚌 Shuttle Rerouted", "Rerouted 3 transport buses via shorter routes to save emissions.", "success");
+      addTimelineEvent("Sustainability", "Rerouted 3 shuttle buses via shorter routes (-0.4t CO2 impact).", "info");
+
+      return {
+        ...state,
+        sustainability: updatedSus
+      };
+    });
+  },
+
+  dispatchWasteSort: () => {
+    const { addTimelineEvent, addToast } = get();
+    set((state) => {
+      const updatedSus = {
+        ...state.sustainability,
+        wasteRecycledPercent: Math.min(100, state.sustainability.wasteRecycledPercent + 8),
+        aiScore: Math.min(100, state.sustainability.aiScore + 5)
+      };
+
+      // Dynamically add a task to the volunteer portal!
+      const { addTask } = useVolunteerStore.getState();
+      addTask({
+        title: "Deploy Waste Sorting Chevrons",
+        description: "Spectator trash bins in Section D are overflowing. Monitor recycling splits and sort litter.",
+        priority: "medium",
+        zone: "Section D",
+        estimatedMinutes: 15,
+        aiGenerated: true
+      });
+
+      addToast("♻️ Waste Task Dispatched", "Volunteers dispatched to Section D bin sorting stations.", "success");
+      addTimelineEvent("Sustainability", "Dispatched waste sorting chevrons to Section D (+8% recycling impact).", "info");
 
       return {
         ...state,
