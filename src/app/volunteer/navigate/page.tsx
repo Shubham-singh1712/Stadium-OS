@@ -98,7 +98,9 @@ export default function VolunteerNavigatePage() {
             />
 
             <div style={{ display: "flex", gap: "0.75rem" }}>
+              <label htmlFor="destination-select" className="sr-only">Select target destination</label>
               <select
+                id="destination-select"
                 value={navTarget}
                 onChange={(e) => { setNavTarget(e.target.value); setRouteGenerated(false); }}
                 style={{

@@ -37,6 +37,8 @@ export function ToasterOverlay() {
           return (
             <motion.div
               key={t.id}
+              role={t.severity === "critical" || t.severity === "warning" ? "alert" : "status"}
+              aria-live={t.severity === "critical" || t.severity === "warning" ? "assertive" : "polite"}
               initial={{ opacity: 0, x: 50, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 50, scale: 0.9 }}

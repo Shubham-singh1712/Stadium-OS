@@ -173,7 +173,9 @@ function NavigationContent() {
             />
 
             <div style={{ display: "flex", gap: "0.75rem" }}>
+              <label htmlFor="fan-destination-select" className="sr-only">Select target destination</label>
               <select
+                id="fan-destination-select"
                 value={navTarget}
                 onChange={(e) => { selectDestination(e.target.value); }}
                 style={{

@@ -17,6 +17,8 @@ export function showCortexToast({ title, message, severity, category = "CORTEX S
 
   toast.custom(() => (
     <div
+      role={severity === "critical" || severity === "warning" ? "alert" : "status"}
+      aria-live={severity === "critical" || severity === "warning" ? "assertive" : "polite"}
       style={{
         background: styles.bg,
         border: `1px solid ${styles.border}`,

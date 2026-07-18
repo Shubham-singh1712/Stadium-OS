@@ -468,7 +468,9 @@ export default function FanInterpreterPage() {
 
               {/* Chat Input */}
               <form onSubmit={handleConversationSend} style={{ display: "flex", padding: "0.75rem", borderTop: "1px solid hsl(var(--border))", gap: "0.5rem" }}>
+                <label htmlFor="interpreter-chat-input" className="sr-only">Type message in Spanish</label>
                 <input
+                  id="interpreter-chat-input"
                   type="text"
                   placeholder="Type a Spanish phrase..."
                   value={inputText}
@@ -490,7 +492,9 @@ export default function FanInterpreterPage() {
             <div className="glass-card" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <h3 style={{ fontWeight: 600 }}>📝 Manual Text Translation</h3>
               <form onSubmit={handleTextSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+                <label htmlFor="interpreter-text-input" className="sr-only">Spanish text to translate</label>
                 <textarea
+                  id="interpreter-text-input"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Enter Spanish text to translate to English (e.g. Dónde están los baños?)"
