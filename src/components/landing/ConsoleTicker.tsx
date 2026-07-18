@@ -3,6 +3,13 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface TickerEvent {
+  id: number;
+  text: string;
+  type: string;
+  uniqueId?: number;
+}
+
 const EVENT_POOL = [
   { id: 1, text: "Goal detected in Sector 4", type: "event" },
   { id: 2, text: "Crowd movement increasing (East Wing)", type: "alert" },
@@ -15,7 +22,7 @@ const EVENT_POOL = [
 ];
 
 export function ConsoleTicker() {
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<TickerEvent[]>([]);
   const [eventIndex, setEventIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
 
@@ -62,7 +69,7 @@ export function ConsoleTicker() {
         
         <div className="flex flex-col gap-2 w-full z-10 px-4">
           <AnimatePresence mode="popLayout">
-            {events.map((ev: any) => (
+            {events.map((ev) => (
               <motion.div
                 key={ev.uniqueId}
                 layout="position"

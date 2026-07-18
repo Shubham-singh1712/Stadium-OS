@@ -137,8 +137,8 @@ export default function FanInterpreterPage() {
     if (!inputText.trim()) return;
 
     let translation = "This is a simulated translation of your input.";
-    let lang = "Spanish";
-    let flag = "🇪🇸";
+    const lang = "Spanish";
+    const flag = "🇪🇸";
 
     if (inputText.toLowerCase().includes("hola")) {
       translation = "Hello.";
@@ -400,7 +400,7 @@ export default function FanInterpreterPage() {
                           {detectedFlag} Spoken ({detectedLang})
                         </span>
                         <div style={{ display: "flex", gap: "8px" }}>
-                          <button onClick={() => copyText(voiceText)} style={{ background: "none", border: "none", cursor: "pointer", color: "hsl(var(--foreground-muted))" }} title="Copy">
+                          <button aria-label="Copy to clipboard" onClick={() => copyText(voiceText)} style={{ background: "none", border: "none", cursor: "pointer", color: "hsl(var(--foreground-muted))" }} title="Copy">
                             <Copy size={14} />
                           </button>
                         </div>
@@ -412,7 +412,7 @@ export default function FanInterpreterPage() {
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                         <span style={{ fontSize: "0.75rem", color: "hsl(var(--accent-blue))", fontWeight: 600 }}>🇺🇸 Translated (English)</span>
                         <div style={{ display: "flex", gap: "10px" }}>
-                          <button onClick={() => speakText(voiceTranslated)} style={{ background: "none", border: "none", cursor: "pointer", color: "hsl(var(--accent-blue))" }} title="Play Audio">
+                          <button aria-label="Play audio" onClick={() => speakText(voiceTranslated)} style={{ background: "none", border: "none", cursor: "pointer", color: "hsl(var(--accent-blue))" }} title="Play Audio">
                             <Volume2 size={16} />
                           </button>
                         </div>
@@ -459,7 +459,7 @@ export default function FanInterpreterPage() {
                       </p>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "0.375rem" }}>
                         <p style={{ fontSize: "0.9375rem", fontWeight: 500 }}>{msg.translatedText}</p>
-                        <button onClick={() => speakText(msg.translatedText, isFan ? "en-US" : "es-ES")} style={{ background: "none", border: "none", cursor: "pointer", color: "hsl(var(--foreground-subtle))" }}>
+                        <button aria-label="Play audio translation" onClick={() => speakText(msg.translatedText, isFan ? "en-US" : "es-ES")} style={{ background: "none", border: "none", cursor: "pointer", color: "hsl(var(--foreground-subtle))" }}>
                           <Volume2 size={14} />
                         </button>
                       </div>

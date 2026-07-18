@@ -63,6 +63,7 @@ interface CortexState {
   dismissAlert: (id: string) => void;
   addAlert: (alert: Omit<Alert, "id" | "timestamp">) => void;
   startSimulation: () => void;
+  stopSimulation: () => void;
   tick: () => void;
   tickAsync: () => Promise<void>;
   addToast: (title: string, message: string, severity: Toast["severity"]) => void;
@@ -403,13 +404,13 @@ export const useCortexStore = create<CortexState>((set, get) => ({
 
   tick: () => {
     set((state) => {
-      let activeScenario = state.activeScenario;
+      const activeScenario = state.activeScenario;
       let zones = state.zones;
-      let crowd = state.crowd;
-      let timelineEvents = state.timelineEvents;
-      let alerts = state.alerts;
-      let vendors = state.vendors;
-      let transport = state.transport;
+      const crowd = state.crowd;
+      const timelineEvents = state.timelineEvents;
+      const alerts = state.alerts;
+      const vendors = state.vendors;
+      const transport = state.transport;
 
       // Natural drifting in idle state
       if (!activeScenario) {
@@ -458,18 +459,18 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         set((prevState) => {
           let newAlerts = prevState.alerts;
           if (data.newAlerts?.length > 0) {
-            newAlerts = [...data.newAlerts.map((a: any) => ({ ...a, id: `al-${Date.now()}-${Math.random()}`, timestamp: new Date() })), ...prevState.alerts];
+            newAlerts = [...data.newAlerts.map((a: Record<string, unknown>) => ({ ...a, id: `al-${Date.now()}-${Math.random()}`, timestamp: new Date() })), ...prevState.alerts];
           }
 
           let newEvents = prevState.timelineEvents;
           if (data.newTimelineEvents?.length > 0) {
-            newEvents = [...data.newTimelineEvents.map((e: any) => ({ ...e, id: `tle-${Date.now()}-${Math.random()}`, timestamp: new Date() })), ...prevState.timelineEvents].slice(0, 50);
+            newEvents = [...data.newTimelineEvents.map((e: Record<string, unknown>) => ({ ...e, id: `tle-${Date.now()}-${Math.random()}`, timestamp: new Date() })), ...prevState.timelineEvents].slice(0, 50);
           }
 
           let newZones = prevState.zones;
           if (data.zoneUpdates?.length > 0) {
             newZones = prevState.zones.map(z => {
-              const update = data.zoneUpdates.find((u: any) => u.id === z.id);
+              const update = data.zoneUpdates.find((u: { id: string }) => u.id === z.id);
               return update ? { ...z, ...update } : z;
             });
           }

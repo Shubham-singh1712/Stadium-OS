@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+// Simple in-memory rate limit map (reset on cold start)
+const RATE_LIMIT_MAP = new Map<string, { count: number, resetTime: number }>();
+const MAX_REQUESTS = 10;
+const WINDOW_MS = 60000; // 1 minute
+
+
 const requestSchema = z.object({
   scenario: z.string(),
   currentState: z.any(),
@@ -12,6 +18,19 @@ export async function POST(req: Request) {
     const host = req.headers.get("host");
     if (!origin || !host || !origin.includes(host)) {
       return NextResponse.json({ error: "Forbidden: CSRF origin validation failed" }, { status: 403 });
+    }
+
+    const ip = req.headers.get("x-forwarded-for") || "unknown";
+    const now = Date.now();
+    const rlData = RATE_LIMIT_MAP.get(ip);
+    
+    if (rlData && rlData.resetTime > now) {
+      if (rlData.count >= MAX_REQUESTS) {
+        return NextResponse.json({ error: "Too Many Requests" }, { status: 429 });
+      }
+      rlData.count++;
+    } else {
+      RATE_LIMIT_MAP.set(ip, { count: 1, resetTime: now + WINDOW_MS });
     }
 
     let body;

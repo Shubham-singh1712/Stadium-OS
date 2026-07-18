@@ -14,7 +14,9 @@ interface GateControlsProps {
   handleActionClick: () => void;
   abortProtocol?: () => void;
   toggleChecklistItem?: (index: number) => void;
-  activeProtocol?: any;
+  activeProtocol?: {
+    checklist?: { label: string; done: boolean }[];
+  } | null;
 }
 
 export function GateControls({
@@ -33,7 +35,7 @@ export function GateControls({
   toggleChecklistItem,
   activeProtocol
 }: GateControlsProps) {
-  const allChecked = activeProtocol?.checklist?.every((item: any) => item.done);
+  const allChecked = activeProtocol?.checklist?.every((item) => item.done);
 
   return (
     <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -41,15 +43,15 @@ export function GateControls({
         {workflowStep === "review" ? (
           <motion.div key="review-buttons" style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             {activeProtocol?.checklist && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", padding: "0.5rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
-                <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "hsl(var(--foreground-muted))" }}>PROTOCOL CHECKLIST</span>
-                {activeProtocol.checklist.map((item: any, idx: number) => (
+              <fieldset style={{ display: "flex", flexDirection: "column", gap: "0.4rem", padding: "0.5rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)", border: "none", margin: 0 }}>
+                <legend style={{ fontSize: "0.7rem", fontWeight: 700, color: "hsl(var(--foreground-muted))", padding: 0, marginBottom: "0.25rem" }}>PROTOCOL CHECKLIST</legend>
+                {activeProtocol.checklist.map((item, idx: number) => (
                   <label key={idx} style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", cursor: "pointer" }}>
                     <input type="checkbox" checked={item.done} onChange={() => toggleChecklistItem?.(idx)} style={{ cursor: "pointer" }} />
                     <span style={{ color: item.done ? "hsl(var(--foreground-muted))" : "hsl(var(--foreground))", textDecoration: item.done ? "line-through" : "none" }}>{item.label}</span>
                   </label>
                 ))}
-              </div>
+              </fieldset>
             )}
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <button 

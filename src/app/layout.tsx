@@ -39,6 +39,7 @@ export default async function RootLayout({
   return (
     <html lang={lang} className="dark">
       <body>
+        <a href="#main-content" className="skip-nav-link">Skip to main content</a>
         <Providers>{children}</Providers>
         <Toaster theme="dark" position="top-right" richColors />
       </body>

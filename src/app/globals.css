@@ -12,8 +12,8 @@
   --border-subtle: 215 20% 13%;
 
   --foreground: 210 20% 95%;
-  --foreground-muted: 215 15% 55%;
-  --foreground-subtle: 215 12% 38%;
+  --foreground-muted: 215 15% 75%;
+  --foreground-subtle: 215 12% 65%;
 
   --accent-green: 152 70% 50%;
   --accent-green-dim: 152 60% 35%;
@@ -399,7 +399,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Skip link, sustainability action, and staffing percent label utility classes */
-.skip-link {
+.skip-nav-link {
   position: absolute;
   top: 1rem;
   left: 1rem;
@@ -412,6 +412,17 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 600;
+}
+.skip-nav-link:not(:focus):not(:focus-within) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border-width: 0 !important;
 }
 
 .btn-sus-action {

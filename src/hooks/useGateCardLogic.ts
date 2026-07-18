@@ -36,8 +36,8 @@ export function useGateCardLogic(zone: StadiumZone, actionType: "redirect" | "mo
 
   // Smoothly animate percentage value
   useEffect(() => {
-    let start = displayPct;
-    let end = pct;
+    const start = displayPct;
+    const end = pct;
     if (start === end) return;
 
     let startTime: number | null = null;
