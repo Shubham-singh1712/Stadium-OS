@@ -89,6 +89,7 @@ interface CortexState {
   dimArenaLights: () => void;
   rerouteShuttles: () => void;
   dispatchWasteSort: () => void;
+  incrementRecycling: () => void;
 }
 
 export const useCortexStore = create<CortexState>((set, get) => ({
@@ -553,15 +554,37 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       const updatedSus = {
         ...state.sustainability,
         carbonKg: Math.max(0, state.sustainability.carbonKg - 2100),
-        aiScore: Math.min(100, state.sustainability.aiScore + 5)
+        aiScore: Math.min(100, state.sustainability.aiScore + 5),
+        greenMenuActivated: true
       };
 
+      // Generate operations vendor task in volunteer portal
+      const { addTask } = useVolunteerStore.getState();
+      addTask({
+        title: "Staff Kiosk 3 Food Court B (Green Menu)",
+        description: "Support operations for the newly activated Green Menu. Help manage the plant-based concession queue at Food Court B.",
+        priority: "high",
+        zone: "Food Court B",
+        estimatedMinutes: 10,
+        aiGenerated: true
+      });
+
+      // Update popularItems in Fan concessions list dynamically!
+      const updatedVendors = state.vendors.map((v) => 
+        v.id === "v3" ? {
+          ...v,
+          name: "Global Bites (Green Menu Active)",
+          popularItems: ["Vegan Tacos", "Plant-based Wraps", "Organic Salad"]
+        } : v
+      );
+
       addToast("🥗 Green Menu Active", "Vegetable-only kiosks enabled at Food Court B registers.", "success");
-      addTimelineEvent("Sustainability", "Activated Green Menu at Food Court B registers (-2.1t CO2 impact).", "info");
+      addTimelineEvent("Sustainability", "Protocol Green-Menu: Activated vegetable-only kiosk at Food Court B (-2.1t CO2 impact).", "info");
 
       return {
         ...state,
-        sustainability: updatedSus
+        sustainability: updatedSus,
+        vendors: updatedVendors
       };
     });
   },
@@ -572,15 +595,30 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       const updatedSus = {
         ...state.sustainability,
         energyKwh: Math.max(0, state.sustainability.energyKwh - 180),
-        aiScore: Math.min(100, state.sustainability.aiScore + 4)
+        energyRenewablePercent: Math.min(100, state.sustainability.energyRenewablePercent + 4),
+        aiScore: Math.min(100, state.sustainability.aiScore + 4),
+        lightingDimmed: true
       };
 
-      addToast("💡 Arena Lights Adjusted", "BMS applied -8% arena lighting reduction globally.", "success");
-      addTimelineEvent("Operations", "BMS applied -8% lighting reduction globally (-180 kWh impact).", "warning");
+      // Update action history of gate-b / concessions zones to show lighting change
+      const updatedZones = state.zones.map((z) => 
+        z.id === "gate-b" ? {
+          ...z,
+          status: "green" as const, // Change lighting zone status visually
+          actionHistory: [
+            { time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), action: "BMS applied -12% corridor lighting reduction", actor: "Cortex AI" },
+            ...(z.actionHistory || [])
+          ]
+        } : z
+      );
+
+      addToast("💡 Arena Lights Adjusted", "BMS applied -12% concourse lighting reduction in Sector C.", "success");
+      addTimelineEvent("Operations", "Protocol Smart-Lighting: BMS applied -12% lighting reduction globally (-180 kWh impact).", "warning");
 
       return {
         ...state,
-        sustainability: updatedSus
+        sustainability: updatedSus,
+        zones: updatedZones
       };
     });
   },
@@ -592,15 +630,32 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         ...state.sustainability,
         carbonKg: Math.max(0, state.sustainability.carbonKg - 400),
         publicTransportPercent: Math.min(100, state.sustainability.publicTransportPercent + 3),
-        aiScore: Math.min(100, state.sustainability.aiScore + 6)
+        aiScore: Math.min(100, state.sustainability.aiScore + 6),
+        shuttlesRerouted: true
       };
 
+      // Update Shuttle routing ETAs, travel times and recommend it in the Fan Transport Page!
+      const updatedTransport = state.transport.map((t) => 
+        t.id === "tr-2" ? {
+          ...t,
+          departureIn: 4,      // ETA improved!
+          duration: 24,        // Travel time improved!
+          crowding: "green" as const, // Low crowding!
+          recommended: true,
+          aiNote: "Optimized Shuttle Rerouting Active — 11 min saved via express corridor"
+        } : t.id === "tr-1" ? {
+          ...t,
+          recommended: false // Shuttle is now the best recommended route
+        } : t
+      );
+
       addToast("🚌 Shuttle Rerouted", "Rerouted 3 transport buses via shorter routes to save emissions.", "success");
-      addTimelineEvent("Sustainability", "Rerouted 3 shuttle buses via shorter routes (-0.4t CO2 impact).", "info");
+      addTimelineEvent("Transport", "Protocol Shuttle-Reroute: Shuttle routing optimized via express corridor (-0.4t CO2 impact).", "info");
 
       return {
         ...state,
-        sustainability: updatedSus
+        sustainability: updatedSus,
+        transport: updatedTransport
       };
     });
   },
@@ -608,12 +663,6 @@ export const useCortexStore = create<CortexState>((set, get) => ({
   dispatchWasteSort: () => {
     const { addTimelineEvent, addToast } = get();
     set((state) => {
-      const updatedSus = {
-        ...state.sustainability,
-        wasteRecycledPercent: Math.min(100, state.sustainability.wasteRecycledPercent + 8),
-        aiScore: Math.min(100, state.sustainability.aiScore + 5)
-      };
-
       // Dynamically add a task to the volunteer portal!
       const { addTask } = useVolunteerStore.getState();
       addTask({
@@ -625,8 +674,26 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         aiGenerated: true
       });
 
-      addToast("♻️ Waste Task Dispatched", "Volunteers dispatched to Section D bin sorting stations.", "success");
-      addTimelineEvent("Sustainability", "Dispatched waste sorting chevrons to Section D (+8% recycling impact).", "info");
+      addToast("♻️ Waste Task Dispatched", "Volunteer task generated for Section D bin sorting.", "success");
+      addTimelineEvent("Sustainability", "Protocol Waste-Sort: Dispatched volunteers to Section D bin sorting stations (+8% recycling impact).", "info");
+
+      return {
+        ...state
+      };
+    });
+  },
+
+  incrementRecycling: () => {
+    const { addTimelineEvent, addToast } = get();
+    set((state) => {
+      const updatedSus = {
+        ...state.sustainability,
+        wasteRecycledPercent: Math.min(100, state.sustainability.wasteRecycledPercent + 8),
+        aiScore: Math.min(100, state.sustainability.aiScore + 5)
+      };
+
+      addToast("♻️ Recycling KPI Increased", "Volunteer completed sorting at Section D; recycling index up +8%.", "success");
+      addTimelineEvent("Sustainability", "Recycling index increased by 8% after volunteer sorted Section D bins.", "info");
 
       return {
         ...state,

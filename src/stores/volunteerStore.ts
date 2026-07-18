@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { VolunteerTask } from "@/types";
+import { useCortexStore } from "./cortexStore";
 
 interface VolunteerState {
   tasks: VolunteerTask[];
@@ -26,11 +27,17 @@ export const useVolunteerStore = create<VolunteerState>((set) => ({
       ),
     })),
   completeTask: (id) =>
-    set((state) => ({
-      tasks: state.tasks.map((t) =>
-        t.id === id ? { ...t, status: "completed" as const } : t
-      ),
-    })),
+    set((state) => {
+      const task = state.tasks.find((t) => t.id === id);
+      if (task && task.title === "Deploy Waste Sorting Chevrons") {
+        useCortexStore.getState().incrementRecycling();
+      }
+      return {
+        tasks: state.tasks.map((t) =>
+          t.id === id ? { ...t, status: "completed" as const } : t
+        ),
+      };
+    }),
   addTask: (taskData) => {
     const newTask: VolunteerTask = {
       ...taskData,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCortexStore } from "@/stores/cortexStore";
+import { useVolunteerStore } from "@/stores/volunteerStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, RadarChart, PolarGrid, PolarAngleAxis, Radar } from "recharts";
 import { motion } from "framer-motion";
@@ -11,6 +12,23 @@ export default function SustainabilityPage() {
   const dimArenaLights = useCortexStore((state) => state.dimArenaLights);
   const rerouteShuttles = useCortexStore((state) => state.rerouteShuttles);
   const dispatchWasteSort = useCortexStore((state) => state.dispatchWasteSort);
+
+  const tasks = useVolunteerStore((state) => state.tasks);
+  const isWasteDispatched = tasks.some((t) => t.title === "Deploy Waste Sorting Chevrons");
+  const isWasteCompleted = tasks.some((t) => t.title === "Deploy Waste Sorting Chevrons" && t.status === "completed");
+
+  const activeOptimizations = [];
+  if (s.greenMenuActivated) activeOptimizations.push("Green Menu Active (-2.1t CO₂)");
+  if (s.lightingDimmed) activeOptimizations.push("Corridor Lighting Dimmed (-180 kWh)");
+  if (s.shuttlesRerouted) activeOptimizations.push("Express Shuttle Rerouting (+3% Transit)");
+
+  const dynamicInsight = activeOptimizations.length > 0
+    ? `Active Protocols: ${activeOptimizations.join(" · ")}. Current public transport adoption is at ${s.publicTransportPercent}%. Renewable energy is at ${s.energyRenewablePercent}%. Operations dashboard, volunteer tasks, and fan menus have been synchronized.`
+    : `Cortex AI analysis: Public transport adoption at ${s.publicTransportPercent}% (target: 60%) is driving strong carbon results. Renewable energy at ${s.energyRenewablePercent}% exceeds the 70% target. Recommendation: Activate vegetable-only kiosks at Food Court B and reduce arena lighting by 8% — estimated combined saving of 2.1t CO₂.`;
+
+  const dynamicTitle = activeOptimizations.length > 0
+    ? `Cortex optimization protocols active (${activeOptimizations.length}/3)`
+    : "Stadium on track to beat carbon target by 14%";
 
   const metrics = [
     { label: "Carbon Footprint", value: `${(s.carbonKg / 1000).toFixed(1)}t`, target: `${(s.carbonTarget / 1000).toFixed(0)}t target`, pct: Math.round((s.carbonKg / s.carbonTarget) * 100), color: s.carbonKg < s.carbonTarget * 0.8 ? "hsl(152,70%,50%)" : "hsl(42,95%,58%)", icon: "🌍" },
@@ -55,23 +73,23 @@ export default function SustainabilityPage() {
 
       {/* Cortex AI Insight */}
       <CortexCard
-        severity="success"
+        severity={activeOptimizations.length > 0 ? "info" : "success"}
         icon="🌱"
-        title="Stadium on track to beat carbon target by 14%"
-        insight={`Cortex AI analysis: Public transport adoption at ${s.publicTransportPercent}% (target: 60%) is driving strong carbon results. Renewable energy at ${s.energyRenewablePercent}% exceeds the 70% target. Recommendation: Activate vegetable-only kiosks at Food Court B and reduce arena lighting by 8% — estimated combined saving of 2.1t CO₂.`}
+        title={dynamicTitle}
+        insight={dynamicInsight}
         actions={[
           { 
-            label: "Activate Green Menu", 
+            label: s.greenMenuActivated ? "Green Menu Active" : "Activate Green Menu", 
             variant: "success", 
             onClick: () => {
-              activateGreenMenu();
+              if (!s.greenMenuActivated) activateGreenMenu();
             }
           },
           { 
-            label: "Dim Arena Lights 8%", 
+            label: s.lightingDimmed ? "Lights Dimmed" : "Dim Arena Lights 8%", 
             variant: "ghost", 
             onClick: () => {
-              dimArenaLights();
+              if (!s.lightingDimmed) dimArenaLights();
             } 
           },
         ]}
@@ -176,6 +194,12 @@ export default function SustainabilityPage() {
                 <span className="sus-rec-impact">{rec.impact}</span>
                 <button 
                   className="btn btn-success btn-sus-action" 
+                  disabled={
+                    rec.action === "Activate" ? s.greenMenuActivated :
+                    rec.action === "Apply" ? s.lightingDimmed :
+                    rec.action === "Reroute" ? s.shuttlesRerouted :
+                    isWasteDispatched
+                  }
                   onClick={() => {
                     if (rec.action === "Activate") {
                       activateGreenMenu();
@@ -187,8 +211,25 @@ export default function SustainabilityPage() {
                       dispatchWasteSort();
                     }
                   }}
+                  style={{
+                    opacity: (
+                      rec.action === "Activate" ? s.greenMenuActivated :
+                      rec.action === "Apply" ? s.lightingDimmed :
+                      rec.action === "Reroute" ? s.shuttlesRerouted :
+                      isWasteDispatched
+                    ) ? 0.6 : 1,
+                    cursor: (
+                      rec.action === "Activate" ? s.greenMenuActivated :
+                      rec.action === "Apply" ? s.lightingDimmed :
+                      rec.action === "Reroute" ? s.shuttlesRerouted :
+                      isWasteDispatched
+                    ) ? "not-allowed" : "pointer"
+                  }}
                 >
-                  {rec.action}
+                  {rec.action === "Activate" && (s.greenMenuActivated ? "Active" : "Activate")}
+                  {rec.action === "Apply" && (s.lightingDimmed ? "Applied" : "Apply")}
+                  {rec.action === "Reroute" && (s.shuttlesRerouted ? "Rerouted" : "Reroute")}
+                  {rec.action === "Dispatch" && (isWasteCompleted ? "Completed" : isWasteDispatched ? "Dispatched" : "Dispatch")}
                 </button>
               </div>
             </div>

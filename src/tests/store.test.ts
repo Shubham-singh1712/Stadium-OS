@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { useCortexStore } from "../stores/cortexStore";
+import { useVolunteerStore } from "../stores/volunteerStore";
 import { ENHANCED_INITIAL_ZONES } from "../stores/cortexInitialData";
 
 // Reset store to a clean known state before each test
@@ -313,8 +314,13 @@ describe("CortexStore — Sustainability Actions", () => {
     expect(useCortexStore.getState().sustainability.carbonKg).toBeLessThan(42800);
   });
 
-  it("should increase wasteRecycledPercent after dispatchWasteSort", () => {
+  it("should increase wasteRecycledPercent after dispatchWasteSort and volunteer completion", () => {
     useCortexStore.getState().dispatchWasteSort();
+    const task = useVolunteerStore.getState().tasks.find((t) => t.title === "Deploy Waste Sorting Chevrons");
+    expect(task).toBeDefined();
+    if (task) {
+      useVolunteerStore.getState().completeTask(task.id);
+    }
     expect(useCortexStore.getState().sustainability.wasteRecycledPercent).toBeGreaterThan(68);
   });
 });

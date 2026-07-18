@@ -150,6 +150,9 @@ export interface SustainabilityMetrics {
   walkingDistanceKm: number;
   aiScore: number;
   trend: "improving" | "neutral" | "worsening";
+  greenMenuActivated?: boolean;
+  lightingDimmed?: boolean;
+  shuttlesRerouted?: boolean;
 }
 
 // ─── AI Copilot ───────────────────────────────────────────────────────────────
