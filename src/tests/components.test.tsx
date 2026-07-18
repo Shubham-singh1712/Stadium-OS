@@ -6,7 +6,20 @@ import { MetricCard } from "../components/ui/MetricCard";
 import { ActiveAlertList } from "../components/operations/ActiveAlertList";
 import { VendorPerformanceList } from "../components/operations/VendorPerformanceList";
 import { StadiumMap } from "../components/stadium/StadiumMap";
+import { RolePortal } from "../components/landing/RolePortal";
+import { ConsoleTicker } from "../components/landing/ConsoleTicker";
+import { ConnectionOverlay } from "../components/landing/ConnectionOverlay";
+import { ToasterOverlay } from "../components/layout/ToasterOverlay";
 import React from "react";
+
+// Mock Next.js navigation hooks
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+  }),
+  usePathname: () => "/",
+}));
 
 // Mock store to support function execution hook and getState references
 const mockState = {
@@ -15,6 +28,8 @@ const mockState = {
     { id: "gate-c", name: "Gate C", type: "gate", capacity: 2000, current: 600, status: "green", x: 80, y: 10, aiRecommendation: "Gate C clear", predictedPeak: 35, flowRate: 80, confidenceScore: 92, criticalEta: 99, actionHistory: [], densitySparkline: [] }
   ],
   crowd: { riskScore: 74, riskLevel: "High" },
+  toasts: [],
+  dismissToast: vi.fn(),
   startProtocol: vi.fn(),
   executeOverflow: vi.fn(),
   autoAssignStaff: vi.fn(),
@@ -182,6 +197,33 @@ describe("Core UI Components", () => {
 
       fireEvent.click(nodeButton);
       expect(mockClick).toHaveBeenCalledWith("Gate A");
+    });
+  });
+
+  describe("Landing & Layout Smoke Components", () => {
+    it("should render RolePortal and trigger hover events", () => {
+      const mockHoverChange = vi.fn();
+      render(<RolePortal onHoverChange={mockHoverChange} />);
+      const fanBtn = screen.getByText("Fan");
+      expect(fanBtn).toBeDefined();
+      
+      fireEvent.mouseEnter(fanBtn);
+      expect(mockHoverChange).toHaveBeenCalled();
+    });
+
+    it("should render ConsoleTicker without crashing", () => {
+      const { container } = render(<ConsoleTicker />);
+      expect(container.firstChild).toBeDefined();
+    });
+
+    it("should render ConnectionOverlay without crashing", () => {
+      const { container } = render(<ConnectionOverlay hoveredRole="fan" shouldReduceMotion={false} />);
+      expect(container.firstChild).toBeDefined();
+    });
+
+    it("should render ToasterOverlay without crashing", () => {
+      const { container } = render(<ToasterOverlay />);
+      expect(container.firstChild).toBeDefined();
     });
   });
 });

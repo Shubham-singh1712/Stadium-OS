@@ -409,13 +409,56 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       const activeScenario = state.activeScenario;
       let zones = state.zones;
       const crowd = state.crowd;
-      const timelineEvents = state.timelineEvents;
-      const alerts = state.alerts;
+      let timelineEvents = state.timelineEvents;
+      let alerts = state.alerts;
       const vendors = state.vendors;
       const transport = state.transport;
 
-      // Natural drifting in idle state
-      if (!activeScenario) {
+      let nextScenario = activeScenario;
+      if (activeScenario) {
+        const currentStage = activeScenario.stage;
+        let nextStage = currentStage;
+        if (currentStage === 0) nextStage = 1;
+        else if (currentStage === 1) nextStage = 2;
+        else if (currentStage === 2) nextStage = 2.5;
+        else if (currentStage === 2.5) nextStage = 3;
+
+        if (nextStage >= 3 || currentStage >= 3) {
+          nextScenario = null;
+        } else {
+          nextScenario = { ...activeScenario, stage: nextStage };
+        }
+
+        // Add timeline events during scenario progression
+        timelineEvents = [
+          {
+            id: `tle-tick-${Date.now()}-${Math.random()}`,
+            timestamp: new Date(),
+            category: "Cortex AI",
+            message: `${activeScenario.name} simulation progressing.`,
+            severity: "warning" as const,
+          },
+          ...timelineEvents,
+        ].slice(0, 50);
+
+        // Add critical alert when reaching stage 2.5
+        if (nextStage === 2.5) {
+          alerts = [
+            {
+              id: `al-crit-${Date.now()}-${Math.random()}`,
+              severity: "critical",
+              title: "Gate A Crowd buildup",
+              message: "buildup detected",
+              zone: "Gate A",
+              timestamp: new Date(),
+              actionRequired: true,
+              acknowledged: false,
+            },
+            ...alerts,
+          ];
+        }
+      } else {
+        // Natural drifting in idle state
         zones = zones.map(z => ({
           ...z,
           current: Math.max(0, Math.min(z.capacity, z.current + Math.floor(Math.random() * 20) - 10))
@@ -428,7 +471,9 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         timelineEvents,
         alerts,
         vendors,
-        transport
+        transport,
+        activeScenario: nextScenario,
+        lastUpdated: new Date()
       };
     });
   },
