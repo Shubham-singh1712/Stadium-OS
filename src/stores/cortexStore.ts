@@ -99,7 +99,10 @@ interface CortexState {
   broadcastEmergency: () => void;
   closeGate: (zoneId: string) => void;
   publishAnnouncement: (message: string | null) => void;
+  cortexMemory: Array<{ time: string; action: string; details: string }>;
+  logCortexMemory: (action: string, details: string) => void;
 }
+
 
 function getNextScenarioStage(activeScenario: ActiveScenario | null): ActiveScenario | null {
   if (!activeScenario) return null;
@@ -165,6 +168,19 @@ export const useCortexStore = create<CortexState>((set, get) => ({
   activeScenario: null,
   activeProtocol: null,
   scenarioStageHeldAt: null,
+  cortexMemory: [],
+  logCortexMemory: (action, details) => {
+    set((state) => {
+      const timeStr = `${state.matchMinute}′`;
+      return {
+        cortexMemory: [
+          ...state.cortexMemory,
+          { time: timeStr, action, details }
+        ].slice(-20)
+      };
+    });
+  },
+
 
   acknowledgeAlert: (id) =>
     set((state) => ({
@@ -600,6 +616,18 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         return z;
       });
 
+      const { addTask } = useVolunteerStore.getState();
+      addTask({
+        title: "Auto-Assigned Staff Deployment",
+        description: "Assisting crowd redirection detours at Gate A and Food Court A.",
+        priority: "medium",
+        zone: "Gate A & Food Court A",
+        estimatedMinutes: 15,
+        aiGenerated: true
+      });
+
+      const memoryEntry = { time: `${state.matchMinute}′`, action: "Auto-Assigned Staff Gaps", details: "AI Optimizer redeployed 23 staff members to Gate A and Food Court A." };
+
       addToast("👥 Staffing Auto-Assigned", "Critical gaps filled. Gate A is now staffed at 100%.", "success");
       addTimelineEvent("Staffing", "AI Optimizer redeployed 23 staff members to critical sectors (Gate A, Food Court A).", "success");
 
@@ -613,6 +641,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         ...state,
         zones: updatedZones,
         activeScenario: newScenario,
+        cortexMemory: [...state.cortexMemory, memoryEntry].slice(-20),
         crowd: {
           ...state.crowd,
           riskScore: Math.max(25, state.crowd.riskScore - 15),
@@ -622,17 +651,19 @@ export const useCortexStore = create<CortexState>((set, get) => ({
     });
   },
 
+
   activateGreenMenu: () => {
     const { addTimelineEvent, addToast } = get();
     set((state) => {
       const updatedSus = {
         ...state.sustainability,
         carbonKg: Math.max(0, state.sustainability.carbonKg - 2100),
+        wasteRecycledPercent: Math.min(100, state.sustainability.wasteRecycledPercent + 3),
+        energyKwh: Math.max(0, state.sustainability.energyKwh - 50),
         aiScore: Math.min(100, state.sustainability.aiScore + 5),
         greenMenuActivated: true
       };
 
-      // Generate operations vendor task in volunteer portal
       const { addTask } = useVolunteerStore.getState();
       addTask({
         title: "Staff Kiosk 3 Food Court B (Green Menu)",
@@ -643,14 +674,16 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         aiGenerated: true
       });
 
-      // Update popularItems in Fan concessions list dynamically!
       const updatedVendors = state.vendors.map((v) => 
         v.id === "v3" ? {
           ...v,
           name: "Global Bites (Green Menu Active)",
-          popularItems: ["Vegan Tacos", "Plant-based Wraps", "Organic Salad"]
+          popularItems: ["Vegan Tacos", "Plant-based Wraps", "Organic Salad"],
+          efficiency: Math.min(100, v.efficiency + 5)
         } : v
       );
+
+      const memoryEntry = { time: `${state.matchMinute}′`, action: "Activated Green Menu", details: "Activated plant-based registers at Food Court B. Carbon decreased by 2.1t." };
 
       addToast("🥗 Green Menu Active", "Vegetable-only kiosks enabled at Food Court B registers.", "success");
       addTimelineEvent("Sustainability", "Protocol Green-Menu: Activated vegetable-only kiosk at Food Court B (-2.1t CO2 impact).", "info");
@@ -658,7 +691,8 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       return {
         ...state,
         sustainability: updatedSus,
-        vendors: updatedVendors
+        vendors: updatedVendors,
+        cortexMemory: [...state.cortexMemory, memoryEntry].slice(-20)
       };
     });
   },
@@ -669,16 +703,16 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       const updatedSus = {
         ...state.sustainability,
         energyKwh: Math.max(0, state.sustainability.energyKwh - 180),
+        carbonKg: Math.max(0, state.sustainability.carbonKg - 900),
         energyRenewablePercent: Math.min(100, state.sustainability.energyRenewablePercent + 4),
         aiScore: Math.min(100, state.sustainability.aiScore + 4),
         lightingDimmed: true
       };
 
-      // Update action history of gate-b / concessions zones to show lighting change
       const updatedZones = state.zones.map((z) => 
         z.id === "gate-b" ? {
           ...z,
-          status: "green" as const, // Change lighting zone status visually
+          status: "green" as const,
           actionHistory: [
             { time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), action: "BMS applied -12% corridor lighting reduction", actor: "Cortex AI" },
             ...(z.actionHistory || [])
@@ -686,13 +720,16 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         } : z
       );
 
+      const memoryEntry = { time: `${state.matchMinute}′`, action: "Dimmed Concourse Lighting", details: "Dimmed Sector C concourse lights by 12%. Energy down by 180 kWh." };
+
       addToast("💡 Arena Lights Adjusted", "BMS applied -12% concourse lighting reduction in Sector C.", "success");
       addTimelineEvent("Operations", "Protocol Smart-Lighting: BMS applied -12% lighting reduction globally (-180 kWh impact).", "warning");
 
       return {
         ...state,
         sustainability: updatedSus,
-        zones: updatedZones
+        zones: updatedZones,
+        cortexMemory: [...state.cortexMemory, memoryEntry].slice(-20)
       };
     });
   },
@@ -703,25 +740,27 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       const updatedSus = {
         ...state.sustainability,
         carbonKg: Math.max(0, state.sustainability.carbonKg - 400),
+        energyKwh: Math.max(0, state.sustainability.energyKwh - 100),
         publicTransportPercent: Math.min(100, state.sustainability.publicTransportPercent + 3),
         aiScore: Math.min(100, state.sustainability.aiScore + 6),
         shuttlesRerouted: true
       };
 
-      // Update Shuttle routing ETAs, travel times and recommend it in the Fan Transport Page!
       const updatedTransport = state.transport.map((t) => 
         t.id === "tr-2" ? {
           ...t,
-          departureIn: 4,      // ETA improved!
-          duration: 24,        // Travel time improved!
-          crowding: "green" as const, // Low crowding!
+          departureIn: 4,
+          duration: 24,
+          crowding: "green" as const,
           recommended: true,
           aiNote: "Optimized Shuttle Rerouting Active — 11 min saved via express corridor"
         } : t.id === "tr-1" ? {
           ...t,
-          recommended: false // Shuttle is now the best recommended route
+          recommended: false
         } : t
       );
+
+      const memoryEntry = { time: `${state.matchMinute}′`, action: "Rerouted Shuttles", details: "Rerouted 3 express buses via outer bypass. Carbon output cut by 0.4t." };
 
       addToast("🚌 Shuttle Rerouted", "Rerouted 3 transport buses via shorter routes to save emissions.", "success");
       addTimelineEvent("Transport", "Protocol Shuttle-Reroute: Shuttle routing optimized via express corridor (-0.4t CO2 impact).", "info");
@@ -729,10 +768,12 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       return {
         ...state,
         sustainability: updatedSus,
-        transport: updatedTransport
+        transport: updatedTransport,
+        cortexMemory: [...state.cortexMemory, memoryEntry].slice(-20)
       };
     });
   },
+
 
   dispatchWasteSort: () => {
     const { addTimelineEvent, addToast } = get();
@@ -798,6 +839,8 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         aiGenerated: true,
       });
 
+      const memoryEntry = { time: `${state.matchMinute}′`, action: "Opened Kiosk 4B", details: "Activated secondary registers at Food Court B." };
+
       addToast("🍔 Concessions Kiosk Active", "Kiosk 4B registers online; concessions queues stabilized.", "success");
       addTimelineEvent("Facility", "Protocol Concessions-Kiosk: Opened secondary queue lanes at Food Court B.", "success");
 
@@ -805,6 +848,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         ...state,
         vendors: updatedVendors,
         zones: updatedZones,
+        cortexMemory: [...state.cortexMemory, memoryEntry].slice(-20)
       };
     });
   },
@@ -817,19 +861,21 @@ export const useCortexStore = create<CortexState>((set, get) => ({
           return { ...z, current: Math.max(800, z.current - 450), status: "yellow" as const };
         }
         if (z.id === "park-c") {
-          return { ...z, current: Math.min(z.capacity, z.current + 350) };
+          return { ...z, current: Math.min(z.capacity, z.current + 450), status: "yellow" as const };
         }
         return z;
       });
 
       useVolunteerStore.getState().addTask({
-        title: "Redirection Patrol: Parking Lot C",
-        description: "Direct traffic from saturated Parking Lot A to Parking Lot C.",
-        priority: "high",
+        title: "Deploy Traffic Guides — Lot C",
+        description: "Guide arriving vehicles into secondary lanes at Parking Lot C to offset main entrance queues.",
+        priority: "medium",
         zone: "Parking Lot C",
         estimatedMinutes: 12,
         aiGenerated: true,
       });
+
+      const memoryEntry = { time: `${state.matchMinute}′`, action: "Redirected Parking Lot C", details: "Diverted traffic to Parking Lot C to relieve load at Lot A." };
 
       addToast("🚗 Parking Redirect Initiated", "Diverting inbound traffic from Parking Lot A to Parking Lot C.", "success");
       addTimelineEvent("Operations", "Protocol Parking-Divert: Activated vehicular traffic diversion flow to Parking Lot C.", "warning");
@@ -837,6 +883,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       return {
         ...state,
         zones: updatedZones,
+        cortexMemory: [...state.cortexMemory, memoryEntry].slice(-20)
       };
     });
   },
@@ -857,12 +904,15 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         aiGenerated: true,
       });
 
+      const memoryEntry = { time: `${state.matchMinute}′`, action: "Deployed Metro Staff", details: "Dispatched platform control to Metro East platform." };
+
       addToast("🚇 Metro Staff Deployed", "Redeployed platform volunteers to Metro East Station.", "success");
       addTimelineEvent("Transport", "Protocol Transit-Staff: Staff deployed to platform zones to manage egress bottlenecks.", "info");
 
       return {
         ...state,
         transport: updatedTransport,
+        cortexMemory: [...state.cortexMemory, memoryEntry].slice(-20)
       };
     });
   },
@@ -873,11 +923,15 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       const updatedVendors = state.vendors.map((v) =>
         v.zone === "Food Court A" ? { ...v, waitMinutes: Math.max(2, v.waitMinutes - 4), efficiency: Math.min(100, v.efficiency + 10) } : v
       );
+
+      const memoryEntry = { time: `${state.matchMinute}′`, action: "Staged Food Court A Inventory", details: "Inventory staged at Food Court A; wait times reduced." };
+
       addToast("🍔 Concessions Pre-Staging Active", "Inventory pre-stage signal sent; concession prep efficiency improved.", "success");
       addTimelineEvent("Facility", "Protocol Concessions-Stage: Inventory staging optimized at Food Court A.", "info");
       return {
         ...state,
         vendors: updatedVendors,
+        cortexMemory: [...state.cortexMemory, memoryEntry].slice(-20)
       };
     });
   },
@@ -915,6 +969,8 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         });
       }).catch(() => {});
 
+      const memoryEntry = { time: `${state.matchMinute}′`, action: "🚨 Activated Emergency Broadcast", details: "Sent stadium-wide egress signals. Dispatched emergency volunteer chevrons." };
+
       addToast("🚨 EMERGENCY BROADCAST", "Emergency broadcast initiated. Green egress pathways active.", "critical");
       addTimelineEvent("Security", "Command Center initiated stadium-wide Emergency Egress broadcast.", "critical");
 
@@ -922,6 +978,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         ...state,
         zones: updatedZones,
         activeAnnouncement: "STADIUM EMERGENCY BROADCAST: Please follow the flashing green egress route signs to the nearest exit immediately.",
+        cortexMemory: [...state.cortexMemory, memoryEntry].slice(-20),
         crowd: {
           ...state.crowd,
           riskScore: 95,
@@ -960,13 +1017,16 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         acknowledged: false,
       });
 
+      const memoryEntry = { time: `${state.matchMinute}′`, action: `Closed Gate ${zoneName} Turnstiles`, details: `Closed turnstile flow at ${zoneName} and queued detour announcements.` };
+
       addToast("🚪 Gate Closed", `${zoneName} has been temporarily deactivated. Detours active.`, "warning");
       addTimelineEvent("Security", `Gate turnstiles temporarily shut down at ${zoneName}. Detour routes active.`, "warning");
 
       return {
         ...state,
         zones: updatedZones,
-        activeAnnouncement: `${zoneName} is temporarily closed. Please follow detour signs to other entrances.`
+        activeAnnouncement: `${zoneName} is temporarily closed. Please follow detour signs to other entrances.`,
+        cortexMemory: [...state.cortexMemory, memoryEntry].slice(-20)
       };
     });
   },
@@ -981,11 +1041,20 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         addToast("📢 Announcement Cleared", "Public announcement banner cleared.", "info");
         addTimelineEvent("Operations", "Public announcement banner deactivated.", "info");
       }
+
+      const memoryEntry = {
+        time: `${state.matchMinute}′`,
+        action: message ? "Published Announcement" : "Cleared Announcement",
+        details: message ? `Broadcasted: "${message}"` : "Announcement cleared."
+      };
+
       return {
         ...state,
-        activeAnnouncement: message
+        activeAnnouncement: message,
+        cortexMemory: [...state.cortexMemory, memoryEntry].slice(-20)
       };
     });
   },
 }));
+
 

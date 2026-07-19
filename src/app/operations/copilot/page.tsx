@@ -19,6 +19,9 @@ const PREDEFINED_QUESTIONS = [
 export default function CopilotPage() {
   const crowd = useCortexStore((state) => state.crowd);
   const sustainability = useCortexStore((state) => state.sustainability);
+  const zones = useCortexStore((state) => state.zones);
+  const cortexMemory = useCortexStore((state) => state.cortexMemory);
+  const matchMinute = useCortexStore((state) => state.matchMinute);
   const [messages, setMessages] = useState<CopilotMessage[]>([
     {
       id: "welcome",
@@ -60,7 +63,7 @@ export default function CopilotPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: newMessages,
-          context: { crowd, sustainability },
+          context: { crowd, sustainability, zones, cortexMemory, matchMinute },
         }),
       });
       const data = await res.json();
@@ -99,8 +102,9 @@ export default function CopilotPage() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <span className="live-dot" />
-          <span style={{ fontSize: "0.8125rem", color: "hsl(var(--foreground-muted))" }}>Cortex Active</span>
+          <span style={{ fontSize: "0.8125rem", color: "hsl(var(--foreground-muted))" }}>Cortex Active (Gemini Hybrid)</span>
         </div>
+
       </div>
 
       {/* Quick questions */}
