@@ -10,7 +10,8 @@ export default function CrowdIntelPage() {
   const zones = useCortexStore((state) => state.zones);
   const startProtocol = useCortexStore((state) => state.startProtocol);
   const autoAssignStaff = useCortexStore((state) => state.autoAssignStaff);
-  const addTimelineEvent = useCortexStore((state) => state.addTimelineEvent);
+  const broadcastEmergency = useCortexStore((state) => state.broadcastEmergency);
+
 
   const riskColor = crowd.riskScore > 70 ? "hsl(0,84%,60%)" : crowd.riskScore > 45 ? "hsl(42,95%,58%)" : "hsl(152,70%,50%)";
 
@@ -60,8 +61,7 @@ export default function CrowdIntelPage() {
         </div>
         <div style={{ display: "flex", gap: "0.75rem" }}>
           <button className="btn btn-danger" onClick={() => {
-            toast.error("Emergency broadcast active. Security posts notified.");
-            addTimelineEvent("Security", "Manual emergency protocol broadcast initiated.", "critical");
+            broadcastEmergency();
           }}>
             🚨 Emergency Protocol
           </button>

@@ -4,15 +4,14 @@ import { showCortexToast } from "@/lib/cortexToast";
 import type { StadiumZone } from "@/types";
 
 export function useGateCardLogic(zone: StadiumZone, actionType: "redirect" | "monitor" | "expand", zoneId: string) {
-  const { 
-    activeProtocol, 
-    startProtocol, 
-    setProtocolStatus, 
-    cancelProtocol, 
-    abortProtocol,
-    toggleChecklistItem,
-    toggleMonitoring 
-  } = useCortexStore();
+  const activeProtocol   = useCortexStore((state) => state.activeProtocol);
+  const startProtocol    = useCortexStore((state) => state.startProtocol);
+  const setProtocolStatus = useCortexStore((state) => state.setProtocolStatus);
+  const cancelProtocol   = useCortexStore((state) => state.cancelProtocol);
+  const abortProtocol    = useCortexStore((state) => state.abortProtocol);
+  const toggleChecklistItem = useCortexStore((state) => state.toggleChecklistItem);
+  const toggleMonitoring = useCortexStore((state) => state.toggleMonitoring);
+
 
   const pct = Math.round((zone.current / zone.capacity) * 100);
 

@@ -274,9 +274,13 @@ function NavigationContent() {
                     ))}
                   </div>
                   <button className="btn btn-success" style={{ width: "100%", justifyContent: "center" }}
-                    onClick={() => toast.success("Navigation started! Follow the route above.")}>
+                    onClick={() => {
+                      useCortexStore.getState().addTimelineEvent("Wayfinding", `Fan started navigation route to ${navTarget}.`, "info");
+                      toast.success("Navigation started! Follow the route above.");
+                    }}>
                     ✦ Start Navigation
                   </button>
+
                 </div>
               </motion.div>
             )}

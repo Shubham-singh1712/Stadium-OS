@@ -177,57 +177,48 @@ export default function SustainabilityPage() {
             { title: "Smart Lighting", desc: "Reduce corridor lighting by 12% in Sector C", impact: "−180 kWh", icon: "💡", action: "Apply" },
             { title: "Shuttle Routing", desc: "Reroute 3 buses via shorter path to reduce emissions", impact: "−0.4t CO₂", icon: "🚌", action: "Reroute" },
             { title: "Waste Sort Alert", desc: "Dispatch volunteers to bin stations in Section D", impact: "+8% Recycling", icon: "♻️", action: "Dispatch" },
-          ].map((rec) => (
-            <div key={rec.title} className="sus-rec-card">
-              <div className="sus-rec-header">
-                <span style={{ fontSize: "1.25rem" }}>{rec.icon}</span>
-                <span className="sus-rec-title">{rec.title}</span>
+          ].map((rec) => {
+            const done =
+              rec.action === "Activate" ? s.greenMenuActivated :
+              rec.action === "Apply"    ? s.lightingDimmed :
+              rec.action === "Reroute"  ? s.shuttlesRerouted :
+              isWasteDispatched;
+
+            const handleClick = () => {
+              if (done) return;
+              if (rec.action === "Activate") activateGreenMenu();
+              else if (rec.action === "Apply") dimArenaLights();
+              else if (rec.action === "Reroute") rerouteShuttles();
+              else if (rec.action === "Dispatch") dispatchWasteSort();
+            };
+
+            const buttonLabel =
+              rec.action === "Activate" ? (s.greenMenuActivated ? "Active"    : "Activate") :
+              rec.action === "Apply"    ? (s.lightingDimmed     ? "Applied"   : "Apply")    :
+              rec.action === "Reroute"  ? (s.shuttlesRerouted   ? "Rerouted"  : "Reroute")  :
+              (isWasteCompleted ? "Completed" : isWasteDispatched ? "Dispatched" : "Dispatch");
+
+            return (
+              <div key={rec.title} className="sus-rec-card">
+                <div className="sus-rec-header">
+                  <span style={{ fontSize: "1.25rem" }}>{rec.icon}</span>
+                  <span className="sus-rec-title">{rec.title}</span>
+                </div>
+                <p className="sus-rec-desc">{rec.desc}</p>
+                <div className="sus-rec-footer">
+                  <span className="sus-rec-impact">{rec.impact}</span>
+                  <button
+                    className="btn btn-success btn-sus-action"
+                    disabled={!!done}
+                    onClick={handleClick}
+                    style={{ opacity: done ? 0.6 : 1, cursor: done ? "not-allowed" : "pointer" }}
+                  >
+                    {buttonLabel}
+                  </button>
+                </div>
               </div>
-              <p className="sus-rec-desc">{rec.desc}</p>
-              <div className="sus-rec-footer">
-                <span className="sus-rec-impact">{rec.impact}</span>
-                <button 
-                  className="btn btn-success btn-sus-action" 
-                  disabled={
-                    rec.action === "Activate" ? s.greenMenuActivated :
-                    rec.action === "Apply" ? s.lightingDimmed :
-                    rec.action === "Reroute" ? s.shuttlesRerouted :
-                    isWasteDispatched
-                  }
-                  onClick={() => {
-                    if (rec.action === "Activate") {
-                      activateGreenMenu();
-                    } else if (rec.action === "Apply") {
-                      dimArenaLights();
-                    } else if (rec.action === "Reroute") {
-                      rerouteShuttles();
-                    } else if (rec.action === "Dispatch") {
-                      dispatchWasteSort();
-                    }
-                  }}
-                  style={{
-                    opacity: (
-                      rec.action === "Activate" ? s.greenMenuActivated :
-                      rec.action === "Apply" ? s.lightingDimmed :
-                      rec.action === "Reroute" ? s.shuttlesRerouted :
-                      isWasteDispatched
-                    ) ? 0.6 : 1,
-                    cursor: (
-                      rec.action === "Activate" ? s.greenMenuActivated :
-                      rec.action === "Apply" ? s.lightingDimmed :
-                      rec.action === "Reroute" ? s.shuttlesRerouted :
-                      isWasteDispatched
-                    ) ? "not-allowed" : "pointer"
-                  }}
-                >
-                  {rec.action === "Activate" && (s.greenMenuActivated ? "Active" : "Activate")}
-                  {rec.action === "Apply" && (s.lightingDimmed ? "Applied" : "Apply")}
-                  {rec.action === "Reroute" && (s.shuttlesRerouted ? "Rerouted" : "Reroute")}
-                  {rec.action === "Dispatch" && (isWasteCompleted ? "Completed" : isWasteDispatched ? "Dispatched" : "Dispatch")}
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

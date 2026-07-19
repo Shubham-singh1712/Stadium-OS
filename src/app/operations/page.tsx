@@ -277,7 +277,7 @@ export default function OperationsPage() {
         <ActiveAlertList alerts={alerts} />
 
         {/* Live Event Timeline */}
-        <OperationsTimeline timelineEvents={timelineEvents} />
+        <OperationsTimeline timelineEvents={timelineEvents} matchMinute={matchMinute} />
 
         <VendorPerformanceList vendors={vendors} />
       </motion.div>
@@ -287,7 +287,7 @@ export default function OperationsPage() {
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>⚡ Cortex Predictions — Next 30 Minutes</h3>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "0.875rem" }}>
-            {[
+          {[
               { label: "Gate A", prediction: "Will reach 95% in ~5 min", severity: "red", icon: "🚧", action: "Redirect" },
               { label: "Food Court B", prediction: "Halftime rush in ~8 min — queue will triple", severity: "yellow", icon: "🍔", action: "Open Kiosk 4B" },
               { label: "Parking Lot A", prediction: "Full in ~12 min — reroute incoming vehicles", severity: "red", icon: "🚗", action: "Activate C" },
@@ -295,12 +295,7 @@ export default function OperationsPage() {
             ].map((p) => (
               <div
                 key={p.label}
-                style={{
-                  padding: "1rem",
-                  borderRadius: "var(--radius-md)",
-                  background: p.severity === "red" ? "hsl(0 84% 60% / 0.06)" : "hsl(42 95% 58% / 0.06)",
-                  border: `1px solid ${p.severity === "red" ? "hsl(0 84% 60% / 0.2)" : "hsl(42 95% 58% / 0.2)"}`,
-                }}
+                className={`pred-card pred-card--${p.severity}`}
               >
                 <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "0.5rem" }}>
                   <span>{p.icon}</span>

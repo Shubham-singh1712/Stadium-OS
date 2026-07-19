@@ -160,23 +160,14 @@ export default function StaffingPage() {
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Priority Deployments</h3>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "0.875rem" }}>
-            {sectorGaps.filter((s) => s.gap > 0).map((sector) => (
+          {sectorGaps.filter((s) => s.gap > 0).map((sector) => (
               <div
                 key={sector.sector}
-                style={{
-                  padding: "1rem", borderRadius: "var(--radius-md)",
-                  background: sector.gap >= 4 ? "hsl(0 84% 60% / 0.07)" : sector.gap >= 2 ? "hsl(42 95% 58% / 0.07)" : "hsl(210 90% 60% / 0.07)",
-                  border: `1px solid ${sector.gap >= 4 ? "hsl(0 84% 60% / 0.2)" : sector.gap >= 2 ? "hsl(42 95% 58% / 0.2)" : "hsl(210 90% 60% / 0.2)"}`,
-                }}
+                className={`priority-card priority-card--${sector.gap >= 4 ? "critical" : sector.gap >= 2 ? "warning" : "info"}`}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
                   <span style={{ fontWeight: 600 }}>{sector.sector}</span>
-                  <span style={{
-                    padding: "0.2rem 0.5rem", borderRadius: "999px",
-                    background: sector.gap >= 4 ? "hsl(0 84% 60% / 0.15)" : "hsl(42 95% 58% / 0.15)",
-                    color: sector.gap >= 4 ? "hsl(0,84%,70%)" : "hsl(42,95%,68%)",
-                    fontSize: "0.75rem", fontWeight: 700,
-                  }}>
+                  <span className={`priority-badge priority-badge--${sector.gap >= 4 ? "critical" : "warning"}`}>
                     -{sector.gap} staff
                   </span>
                 </div>
@@ -188,14 +179,8 @@ export default function StaffingPage() {
                   aria-label={`Assign ${sector.gap} staff to ${sector.sector}`}
                   style={{ width: "100%", justifyContent: "center", fontSize: "0.8125rem" }}
                   onClick={() => {
-                    toast.promise(new Promise(res => setTimeout(res, 1000)), {
-                      loading: `Assigning ${sector.gap} staff to ${sector.sector}...`,
-                      success: () => {
-                        addTimelineEvent("staffing", `Deployed ${sector.gap} additional staff to ${sector.sector}`, "info");
-                        return `Deployment successful`;
-                      },
-                      error: "Deployment failed",
-                    });
+                    autoAssignStaff();
+                    addTimelineEvent("Staffing", `Deployed ${sector.gap} additional staff to ${sector.sector}`, "info");
                   }}
                 >
                   Assign {sector.gap} Staff

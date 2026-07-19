@@ -14,7 +14,9 @@ export default function SecurityPage() {
   const timelineEvents = useCortexStore((state) => state.timelineEvents);
   const startProtocol = useCortexStore((state) => state.startProtocol);
   const autoAssignStaff = useCortexStore((state) => state.autoAssignStaff);
-  const addTimelineEvent = useCortexStore((state) => state.addTimelineEvent);
+  const broadcastEmergency = useCortexStore((state) => state.broadcastEmergency);
+  const closeGate = useCortexStore((state) => state.closeGate);
+
 
   const criticalAlerts = alerts.filter(a => a.severity === "critical" && !a.acknowledged);
   const warningAlerts = alerts.filter(a => a.severity === "warning" && !a.acknowledged);
@@ -29,8 +31,7 @@ export default function SecurityPage() {
           </p>
         </div>
         <button className="btn btn-danger" style={{ marginLeft: "auto" }} onClick={() => {
-          toast.error("Emergency broadcast active. Security posts notified.");
-          addTimelineEvent("Security", "Security broadcasted emergency broadcast stadium-wide.", "critical");
+          broadcastEmergency();
         }}>
           🚨 Emergency Broadcast
         </button>
@@ -68,8 +69,7 @@ export default function SecurityPage() {
             label: "Close Gate A Temp.",
             variant: "ghost",
             onClick: () => {
-              toast.warning("Gate A temporary closure signal sent.");
-              addTimelineEvent("Security", "Gate A closed temporarily.", "warning");
+              closeGate("gate-a");
             }
           },
         ]}

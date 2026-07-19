@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import type { CopilotMessage } from "@/types";
+import { OperationalChart } from "@/components/ui/OperationalChart";
+import type { CopilotMessage, CopilotChart } from "@/types";
 import { useCortexStore } from "@/stores/cortexStore";
 import { toast } from "sonner";
 
@@ -10,7 +10,10 @@ export function CopilotMessageBubble({ msg }: { msg: CopilotMessage }) {
   const autoAssignStaff = useCortexStore((state) => state.autoAssignStaff);
   const dimArenaLights = useCortexStore((state) => state.dimArenaLights);
   const activateGreenMenu = useCortexStore((state) => state.activateGreenMenu);
+  const openKiosk4B = useCortexStore((state) => state.openKiosk4B);
+  const dispatchWasteSort = useCortexStore((state) => state.dispatchWasteSort);
   const formatContent = (content: string) => {
+
     return content
       .split("\n")
       .map((line, i) => {
@@ -62,26 +65,31 @@ export function CopilotMessageBubble({ msg }: { msg: CopilotMessage }) {
                 background: "hsl(var(--surface-2))", border: "1px solid hsl(var(--border))",
                 borderRadius: "var(--radius-md)", padding: "1rem", marginBottom: "0.625rem",
               }}>
-                {msg.charts.map((chart, i) => (
-                  <div key={i}>
-                    <p style={{ fontSize: "0.8125rem", fontWeight: 600, marginBottom: "0.75rem", color: "hsl(var(--foreground))" }}>{chart.title}</p>
-                    <div className="sr-only">
-                      <h5>Chart: {chart.title}</h5>
-                      <p>Bar chart data showing metrics for {chart.keys.join(", ")}.</p>
+                {msg.charts.map((chart: CopilotChart, i: number) => {
+                  const xKey = Object.keys(chart.data[0] ?? {})[0] ?? "name";
+                  const series = chart.keys.map((key, ki) => ({
+                    key,
+                    color: ki === 0 ? "hsl(210,90%,55%)" : "hsl(152,70%,45%)",
+                    name: key,
+                  }));
+                  return (
+                    <div key={i}>
+                      <p style={{ fontSize: "0.8125rem", fontWeight: 600, marginBottom: "0.75rem", color: "hsl(var(--foreground))" }}>{chart.title}</p>
+                      <div className="sr-only">
+                        <h5>Chart: {chart.title}</h5>
+                        <p>Bar chart data showing metrics for {chart.keys.join(", ")}.</p>
+                      </div>
+                      <OperationalChart
+                        type="bar"
+                        data={chart.data as Array<Record<string, unknown>>}
+                        xKey={xKey}
+                        series={series}
+                        height={140}
+                        ariaLabel="Copilot metric analysis chart"
+                      />
                     </div>
-                    <ResponsiveContainer width="100%" height={140} role="img" aria-label="Copilot metric analysis chart">
-                      <BarChart data={chart.data} barSize={20}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" vertical={false} />
-                        <XAxis dataKey={Object.keys(chart.data[0] ?? {})[0]} tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-                        <Tooltip contentStyle={{ background: "hsl(var(--surface-3))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 11 }} />
-                        {chart.keys.map((key, ki) => (
-                          <Bar key={key} dataKey={key} fill={ki === 0 ? "hsl(210,90%,55%)" : "hsl(152,70%,45%)"} radius={[4,4,0,0]} />
-                        ))}
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -102,9 +110,14 @@ export function CopilotMessageBubble({ msg }: { msg: CopilotMessage }) {
                         dimArenaLights();
                       } else if (action.id === "e2") {
                         activateGreenMenu();
+                      } else if (action.id === "f1") {
+                        openKiosk4B();
+                      } else if (action.id === "f2") {
+                        dispatchWasteSort();
                       } else {
                         toast.success(`Action applied: ${action.label}`);
                       }
+
                     }}
                     className={`btn btn-${action.variant === "primary" ? "primary" : action.variant === "danger" ? "danger" : "ghost"}`}
                     style={{ fontSize: "0.8125rem" }}

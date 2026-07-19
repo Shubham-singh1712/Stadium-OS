@@ -436,6 +436,56 @@ h1, h2, h3, h4, h5, h6 {
   color: hsl(var(--foreground-subtle));
   margin-top: 0.25rem;
 }
+/* ─── Priority Deployment Cards (staffing page) ─────────────────────────────── */
+.priority-card {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+}
+.priority-card--critical {
+  background: hsl(0 84% 60% / 0.07);
+  border-color: hsl(0 84% 60% / 0.2);
+}
+.priority-card--warning {
+  background: hsl(42 95% 58% / 0.07);
+  border-color: hsl(42 95% 58% / 0.2);
+}
+.priority-card--info {
+  background: hsl(210 90% 60% / 0.07);
+  border-color: hsl(210 90% 60% / 0.2);
+}
+
+/* ─── Prediction Grid Cards (operations page) ───────────────────────────────── */
+.pred-card {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+}
+.pred-card--red {
+  background: hsl(0 84% 60% / 0.06);
+  border-color: hsl(0 84% 60% / 0.2);
+}
+.pred-card--yellow {
+  background: hsl(42 95% 58% / 0.06);
+  border-color: hsl(42 95% 58% / 0.2);
+}
+
+/* ─── Priority badge (staffing page) ───────────────────────────────────────── */
+.priority-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.priority-badge--critical {
+  background: hsl(0 84% 60% / 0.15);
+  color: hsl(0,84%,70%);
+}
+.priority-badge--warning {
+  background: hsl(42 95% 58% / 0.15);
+  color: hsl(42,95%,68%);
+}
+
 /* Override Next.js Turbopack Dev Indicator position to avoid overlapping Demo Controls */
 nextjs-portal {
   display: block !important;

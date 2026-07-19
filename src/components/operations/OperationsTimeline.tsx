@@ -1,12 +1,23 @@
 import { motion, AnimatePresence } from "framer-motion";
 import type { TimelineEvent } from "@/types";
 
-export function OperationsTimeline({ timelineEvents }: { timelineEvents: TimelineEvent[] }) {
+export function OperationsTimeline({
+  timelineEvents,
+  matchMinute,
+}: {
+  timelineEvents: TimelineEvent[];
+  matchMinute?: number;
+}) {
   return (
     <div className="glass-card" style={{ display: "flex", flexDirection: "column" }}>
       <h3 style={{ fontWeight: 600, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "6px" }}>
         <span style={{ width: 8, height: 8, borderRadius: "50%", background: "hsl(190,100%,50%)" }} className="live-dot" />
         Live Activity Stream
+        {matchMinute !== undefined && (
+          <span style={{ marginLeft: "auto", fontSize: "0.75rem", fontWeight: 600, color: "hsl(210,90%,65%)" }}>
+            {matchMinute}′
+          </span>
+        )}
       </h3>
       <div style={{
         display: "flex", flexDirection: "column", gap: "0.75rem",
@@ -36,6 +47,9 @@ export function OperationsTimeline({ timelineEvents }: { timelineEvents: Timelin
                 <p style={{ color: "hsl(var(--foreground))", lineHeight: 1.4 }}>{evt.message}</p>
                 <span style={{ fontSize: "0.6875rem", color: "hsl(var(--foreground-subtle))" }}>
                   {new Date(evt.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                  {matchMinute !== undefined && (
+                    <span style={{ marginLeft: "0.375rem", color: "hsl(210,90%,60%)", fontWeight: 600 }}>· {matchMinute}′</span>
+                  )}
                 </span>
               </div>
             </motion.div>

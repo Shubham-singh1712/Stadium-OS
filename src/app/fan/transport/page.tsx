@@ -6,7 +6,7 @@ import { CortexCard } from "@/components/cortex/CortexCard";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import type { TransportOption } from "@/types";
-import { toast } from "sonner";
+
 
 const TRANSPORT_ICONS: Record<TransportOption["type"], string> = {
   metro: "🚇", bus: "🚌", taxi: "🚕", shuttle: "🚐", walk: "🚶",
@@ -106,13 +106,17 @@ export default function TransportPage() {
                     <p style={{ fontSize: "0.8125rem", color: "hsl(var(--foreground-subtle))", lineHeight: 1.5 }}>✦ {t.aiNote}</p>
                   )}
                 </div>
-                <button
+                 <button
                   className={t.recommended ? "btn btn-success" : "btn btn-ghost"}
                   style={{ flexShrink: 0, alignSelf: "center" }}
-                  onClick={() => toast.success(`Navigating to ${t.name} departure zone...`)}
+                  onClick={() => {
+                    useCortexStore.getState().addTimelineEvent("Wayfinding", `Fan initiated transit route guidance to ${t.name}.`, "info");
+                    router.push(`/fan/navigation?target=${encodeURIComponent(t.name)}&generate=true`);
+                  }}
                 >
                   Go →
                 </button>
+
               </div>
             </motion.div>
           ))}

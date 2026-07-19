@@ -95,6 +95,10 @@ interface CortexState {
   deployMetroStaff: () => void;
   preStageConcessions: () => void;
   matchMinute: number;
+  activeAnnouncement: string | null;
+  broadcastEmergency: () => void;
+  closeGate: (zoneId: string) => void;
+  publishAnnouncement: (message: string | null) => void;
 }
 
 function getNextScenarioStage(activeScenario: ActiveScenario | null): ActiveScenario | null {
@@ -113,14 +117,20 @@ function getNextScenarioStage(activeScenario: ActiveScenario | null): ActiveScen
 }
 
 function driftZonesTelemetry(zones: StadiumZone[]): StadiumZone[] {
-  return zones.map(z => ({
-    ...z,
-    current: Math.max(0, Math.min(z.capacity, z.current + Math.floor(Math.random() * 20) - 10))
-  }));
+  return zones.map(z => {
+    const nextCurrent = Math.max(0, Math.min(z.capacity, z.current + Math.floor(Math.random() * 20) - 10));
+    return {
+      ...z,
+      current: nextCurrent,
+      status: getStatusColor((nextCurrent / z.capacity) * 100)
+    };
+  });
 }
+
 
 export const useCortexStore = create<CortexState>((set, get) => ({
   matchMinute: 73,
+  activeAnnouncement: null,
   zones: ENHANCED_INITIAL_ZONES,
   crowd: {
     totalAttendance: 78420,
@@ -162,6 +172,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         a.id === id ? { ...a, acknowledged: true } : a
       ),
     })),
+
 
   dismissAlert: (id) =>
     set((state) => ({
@@ -442,7 +453,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       const vendors = state.vendors;
       const transport = state.transport;
 
-      let nextScenario = getNextScenarioStage(activeScenario);
+      const nextScenario = getNextScenarioStage(activeScenario);
       if (activeScenario && nextScenario) {
         const nextStage = nextScenario.stage;
 
@@ -870,4 +881,111 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       };
     });
   },
+
+  broadcastEmergency: () => {
+    const { addTimelineEvent, addAlert, addToast } = get();
+    set((state) => {
+      const updatedZones = state.zones.map((z) => ({
+        ...z,
+        status: "red" as const,
+        current: Math.min(z.capacity, z.current + Math.floor(z.capacity * 0.05)),
+        actionHistory: [
+          { time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), action: "Emergency Broadcast active - evacuate", actor: "Security OS" },
+          ...(z.actionHistory || [])
+        ].slice(0, 3)
+      }));
+
+      addAlert({
+        severity: "critical",
+        title: "EMERGENCY BROADCAST ACTIVE",
+        message: "Command center activated emergency stadium-wide protocols. Assist all spectators to exits immediately.",
+        zone: "All Zones",
+        actionRequired: true,
+        acknowledged: false,
+      });
+
+      import("./volunteerStore").then(({ useVolunteerStore }) => {
+        useVolunteerStore.getState().addTask({
+          title: "EMERGENCY EGRESS ROUTING SUPPORT",
+          description: "Assist security staff with egress flows at your local sector. Clear exits and detours.",
+          priority: "urgent",
+          zone: "All Zones",
+          estimatedMinutes: 30,
+          aiGenerated: false,
+        });
+      }).catch(() => {});
+
+      addToast("🚨 EMERGENCY BROADCAST", "Emergency broadcast initiated. Green egress pathways active.", "critical");
+      addTimelineEvent("Security", "Command Center initiated stadium-wide Emergency Egress broadcast.", "critical");
+
+      return {
+        ...state,
+        zones: updatedZones,
+        activeAnnouncement: "STADIUM EMERGENCY BROADCAST: Please follow the flashing green egress route signs to the nearest exit immediately.",
+        crowd: {
+          ...state.crowd,
+          riskScore: 95,
+          riskLevel: "Critical"
+        }
+      };
+    });
+  },
+
+  closeGate: (zoneId: string) => {
+    const { addTimelineEvent, addAlert, addToast } = get();
+    set((state) => {
+      const updatedZones = state.zones.map((z) => {
+        if (z.id === zoneId) {
+          return {
+            ...z,
+            status: "red" as const,
+            flowRate: 0,
+            actionHistory: [
+              { time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), action: "Gate closed temporarily by Operator.", actor: "Chen" },
+              ...(z.actionHistory || [])
+            ].slice(0, 3)
+          };
+        }
+        return z;
+      });
+
+      const zoneName = state.zones.find(z => z.id === zoneId)?.name || zoneId;
+
+      addAlert({
+        severity: "warning",
+        title: `${zoneName} Closed Temporarily`,
+        message: `Operator Chen closed ${zoneName} to relieve bottleneck. Detours to alternative gates configured.`,
+        zone: zoneName,
+        actionRequired: true,
+        acknowledged: false,
+      });
+
+      addToast("🚪 Gate Closed", `${zoneName} has been temporarily deactivated. Detours active.`, "warning");
+      addTimelineEvent("Security", `Gate turnstiles temporarily shut down at ${zoneName}. Detour routes active.`, "warning");
+
+      return {
+        ...state,
+        zones: updatedZones,
+        activeAnnouncement: `${zoneName} is temporarily closed. Please follow detour signs to other entrances.`
+      };
+    });
+  },
+
+  publishAnnouncement: (message: string | null) => {
+    const { addTimelineEvent, addToast } = get();
+    set((state) => {
+      if (message) {
+        addToast("📢 Announcement Published", "Public announcement banner broadcasted successfully.", "success");
+        addTimelineEvent("Operations", `Public announcement broadcasted: "${message}"`, "info");
+      } else {
+        addToast("📢 Announcement Cleared", "Public announcement banner cleared.", "info");
+        addTimelineEvent("Operations", "Public announcement banner deactivated.", "info");
+      }
+      return {
+        ...state,
+        activeAnnouncement: message
+      };
+    });
+  },
 }));
+

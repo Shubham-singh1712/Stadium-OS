@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, Compass, Users, Volume2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useVolunteerStore } from "@/stores/volunteerStore";
+import { useCortexStore } from "@/stores/cortexStore";
+
 
 interface InterpreterSidePanelProps {
   isEmergencyActive: boolean;
@@ -81,7 +84,17 @@ export function InterpreterSidePanel({
 
           <button
             onClick={() => {
-              toast.info("Alerting closest corridor volunteer of translation inquiry");
+              const query = voiceTranslated || simulatedOcrTranslated || "General language inquiry";
+              useVolunteerStore.getState().addTask({
+                title: "Translation Inquiry support",
+                description: `Assistance requested at Section 112 for translator support: "${query}"`,
+                priority: "medium",
+                zone: "Section 112",
+                estimatedMinutes: 5,
+                aiGenerated: false
+              });
+              useCortexStore.getState().addTimelineEvent("Volunteer", `Translation support coordinator paged for inquiry: "${query}"`, "info");
+              toast.success("Page sent to nearest coordinator. Volunteer task generated.");
             }}
             className="btn btn-ghost"
             style={{ justifyContent: "flex-start", gap: "10px", fontSize: "0.875rem" }}
@@ -89,6 +102,7 @@ export function InterpreterSidePanel({
             <Users size={16} />
             <span>Page nearest coordinator desk</span>
           </button>
+
 
           <button
             onClick={() => {

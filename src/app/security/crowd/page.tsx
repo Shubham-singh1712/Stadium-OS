@@ -105,6 +105,7 @@ function ZoneObserverCard({ zone }: { zone: StadiumZone }) {
   const handleCctvToggle = () => {
     const nextState = !isCctvActive;
     setIsCctvActive(nextState);
+    useCortexStore.getState().toggleMonitoring(zone.id, nextState);
 
     if (nextState) {
       showCortexToast({
@@ -126,6 +127,7 @@ function ZoneObserverCard({ zone }: { zone: StadiumZone }) {
   const handleTelemetryToggle = () => {
     const nextState = !isTelemetryActive;
     setIsTelemetryActive(nextState);
+    useCortexStore.getState().addTimelineEvent("SENSOR NET", `${nextState ? "Telemetry Sync Active" : "Telemetry Sync Concluded"} for ${zone.name}.`, nextState ? "info" : "success");
 
     if (nextState) {
       showCortexToast({

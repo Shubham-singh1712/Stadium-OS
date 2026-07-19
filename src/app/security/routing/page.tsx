@@ -13,6 +13,7 @@ import { toast } from "sonner";
 export default function SecurityRoutingPage() {
   const addTimelineEvent = useCortexStore((state) => state.addTimelineEvent);
   const executeRedirect = useCortexStore((state) => state.executeRedirect);
+  const publishAnnouncement = useCortexStore((state) => state.publishAnnouncement);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -43,16 +44,25 @@ export default function SecurityRoutingPage() {
             label: "Alert All Staff", 
             variant: "danger", 
             onClick: () => {
+              import("@/stores/volunteerStore").then(({ useVolunteerStore }) => {
+                useVolunteerStore.getState().addTask({
+                  title: "Emergency Alert Support",
+                  description: "Monitor and guide spectator flows at detours. Active routing changes in place.",
+                  priority: "high",
+                  zone: "Gate A & Gate C",
+                  estimatedMinutes: 20,
+                  aiGenerated: false,
+                });
+              }).catch(() => {});
               toast.success('Security staff notified of routing changes.');
-              addTimelineEvent("security", "All staff alerted to routing emergency", "warning");
+              addTimelineEvent("Security", "All staff alerted to routing emergency. Detour support tasks assigned.", "warning");
             } 
           },
           { 
             label: "Public Announcement", 
             variant: "ghost", 
             onClick: () => {
-              toast.success('PA system announcement queued.');
-              addTimelineEvent("operations", "Public announcement queued for Gate A closure", "info");
+              publishAnnouncement("Gate A detour in place. Please use Gate C.");
             } 
           },
         ]}

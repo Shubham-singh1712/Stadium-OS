@@ -29,8 +29,22 @@ export const useVolunteerStore = create<VolunteerState>((set) => ({
   completeTask: (id) =>
     set((state) => {
       const task = state.tasks.find((t) => t.id === id);
-      if (task && task.title === "Deploy Waste Sorting Chevrons") {
-        useCortexStore.getState().incrementRecycling();
+      if (task) {
+        if (task.title === "Deploy Waste Sorting Chevrons") {
+          useCortexStore.getState().incrementRecycling();
+        } else if (task.title === "Manage Gate A crowd overflow" || task.title.includes("Protocol Delta-2")) {
+          useCortexStore.getState().executeRedirect("gate-a", "gate-c");
+        } else if (task.title === "Open Food Court B kiosk 3" || task.title.includes("Kiosk 4B") || task.title.includes("Queue Overflow")) {
+          useCortexStore.getState().openKiosk4B();
+        } else if (task.title.includes("Restroom")) {
+          const cortexStore = useCortexStore.getState();
+          const updatedZones = cortexStore.zones.map((z) =>
+            z.id === "rest-north" ? { ...z, status: "green" as const, current: 0, queueLength: 0 } : z
+          );
+          useCortexStore.setState({ zones: updatedZones });
+          cortexStore.addToast("🚻 Restroom Restocked", "North Restroom supplies restocked; status is now green.", "success");
+          cortexStore.addTimelineEvent("Volunteer", "Restroom N supply restock completed.", "info");
+        }
       }
       return {
         tasks: state.tasks.map((t) =>
@@ -38,6 +52,7 @@ export const useVolunteerStore = create<VolunteerState>((set) => ({
         ),
       };
     }),
+
   addTask: (taskData) => {
     const newTask: VolunteerTask = {
       ...taskData,

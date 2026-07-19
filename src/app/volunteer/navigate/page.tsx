@@ -177,9 +177,13 @@ export default function VolunteerNavigatePage() {
                     ))}
                   </div>
                   <button className="btn btn-success" style={{ width: "100%", justifyContent: "center" }}
-                    onClick={() => toast.success("Route guidance active. Follow staff signage.")}>
+                    onClick={() => {
+                      useCortexStore.getState().addTimelineEvent("Wayfinding", `Volunteer started active wayfinding route to ${navTarget}.`, "info");
+                      toast.success("Route guidance active. Follow staff signage.");
+                    }}>
                     Start Wayfinding
                   </button>
+
                 </div>
               </motion.div>
             )}
