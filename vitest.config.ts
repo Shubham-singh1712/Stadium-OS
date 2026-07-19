@@ -25,14 +25,6 @@ export default defineConfig({
         statements: 57,
       },
     },
-    poolOptions: {
-      threads: {
-        singleThread: true,
-      },
-      forks: {
-        singleFork: true,
-      },
-    },
   },
   resolve: {
     alias: {

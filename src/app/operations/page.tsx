@@ -200,6 +200,17 @@ export default function OperationsPage() {
               <span style={{ fontSize: "1.75rem", fontWeight: "bold" }}>✓</span>
               <span style={{ fontWeight: 800, fontSize: "0.9375rem" }}>PROTOCOL DELTA-2 SUCCESSFULLY ENGAGED</span>
               <span style={{ fontSize: "0.75rem", color: "hsl(var(--foreground-muted))" }}>Gate A risk minimized. Concourse flow rates nominal. Continuous monitoring active.</span>
+              <button 
+                className="btn btn-ghost" 
+                style={{ marginTop: "0.75rem", padding: "0.5rem 1.25rem", fontSize: "0.8125rem", color: "hsl(0,84%,65%)", borderColor: "hsl(0 84% 60% / 0.3)" }} 
+                onClick={() => {
+                  cancelProtocol();
+                  toast.success("Protocol Delta-2 rolled back successfully.");
+                  addTimelineEvent("crowd", "Protocol Delta-2 rolled back. Gate A turnstiles returned to standard operating parameters.", "warning");
+                }}
+              >
+                ↩ Rollback Protocol (Restore original parameters)
+              </button>
             </motion.div>
           )}
         </AnimatePresence>

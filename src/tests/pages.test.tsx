@@ -86,6 +86,8 @@ vi.mock("../stores/cortexStore", () => {
 // Mock Volunteer Store
 const mockVolunteerState = {
   addTask: vi.fn(),
+  acceptTask: vi.fn(),
+  completeTask: vi.fn(),
 };
 
 vi.mock("../stores/volunteerStore", () => {

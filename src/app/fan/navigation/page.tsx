@@ -36,10 +36,13 @@ function NavigationContent() {
 
   const [navTarget, setNavTarget] = useState("Gate A");
   const [routeGenerated, setRouteGenerated] = useState(false);
+  const activeProtocol = useCortexStore((state) => state.activeProtocol);
 
   // Check if redirection protocol is active in the store zones history
   const gateAZone = zones.find(z => z.id === "gate-a");
-  const isRedirectActive = gateAZone?.actionHistory?.some(h => h.action.toLowerCase().includes("delta-2") || h.action.toLowerCase().includes("rerout"));
+  const isRedirectActive = 
+    !!(activeProtocol && activeProtocol.zoneId === "gate-a" && (activeProtocol.status === "executing" || activeProtocol.status === "verifying" || activeProtocol.status === "success")) ||
+    !!gateAZone?.actionHistory?.some(h => h.action.toLowerCase().includes("delta-2") || h.action.toLowerCase().includes("rerout"));
 
   useEffect(() => {
     const target = searchParams.get("target");

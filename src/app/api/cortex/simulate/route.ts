@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+interface SimulationCurrentState {
+  activeScenario?: { stage: number } | null;
+  crowd?: { riskScore: number } | null;
+}
+
 // Simple in-memory rate limit map (reset on cold start)
 const RATE_LIMIT_MAP = new Map<string, { count: number, resetTime: number }>();
 const MAX_REQUESTS = 10;
@@ -46,10 +51,7 @@ export async function POST(req: Request) {
     }
 
     const { scenario, currentState } = parsed.data;
-    const simState = currentState as {
-      activeScenario?: { stage: number };
-      crowd?: { riskScore: number };
-    } | null | undefined;
+    const simState = currentState as SimulationCurrentState | null | undefined;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (apiKey) {

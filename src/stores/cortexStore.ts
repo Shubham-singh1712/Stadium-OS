@@ -97,6 +97,28 @@ interface CortexState {
   matchMinute: number;
 }
 
+function getNextScenarioStage(activeScenario: ActiveScenario | null): ActiveScenario | null {
+  if (!activeScenario) return null;
+  const currentStage = activeScenario.stage;
+  let nextStage = currentStage;
+  if (currentStage === 0) nextStage = 1;
+  else if (currentStage === 1) nextStage = 2;
+  else if (currentStage === 2) nextStage = 2.5;
+  else if (currentStage === 2.5) nextStage = 3;
+
+  if (nextStage >= 3 || currentStage >= 3) {
+    return null;
+  }
+  return { ...activeScenario, stage: nextStage };
+}
+
+function driftZonesTelemetry(zones: StadiumZone[]): StadiumZone[] {
+  return zones.map(z => ({
+    ...z,
+    current: Math.max(0, Math.min(z.capacity, z.current + Math.floor(Math.random() * 20) - 10))
+  }));
+}
+
 export const useCortexStore = create<CortexState>((set, get) => ({
   matchMinute: 73,
   zones: ENHANCED_INITIAL_ZONES,
@@ -420,20 +442,9 @@ export const useCortexStore = create<CortexState>((set, get) => ({
       const vendors = state.vendors;
       const transport = state.transport;
 
-      let nextScenario = activeScenario;
-      if (activeScenario) {
-        const currentStage = activeScenario.stage;
-        let nextStage = currentStage;
-        if (currentStage === 0) nextStage = 1;
-        else if (currentStage === 1) nextStage = 2;
-        else if (currentStage === 2) nextStage = 2.5;
-        else if (currentStage === 2.5) nextStage = 3;
-
-        if (nextStage >= 3 || currentStage >= 3) {
-          nextScenario = null;
-        } else {
-          nextScenario = { ...activeScenario, stage: nextStage };
-        }
+      let nextScenario = getNextScenarioStage(activeScenario);
+      if (activeScenario && nextScenario) {
+        const nextStage = nextScenario.stage;
 
         // Add timeline events during scenario progression
         timelineEvents = [
@@ -463,12 +474,9 @@ export const useCortexStore = create<CortexState>((set, get) => ({
             ...alerts,
           ];
         }
-      } else {
+      } else if (!activeScenario) {
         // Natural drifting in idle state
-        zones = zones.map(z => ({
-          ...z,
-          current: Math.max(0, Math.min(z.capacity, z.current + Math.floor(Math.random() * 20) - 10))
-        }));
+        zones = driftZonesTelemetry(zones);
       }
 
       const nextMatchMinute = Math.min(90, state.matchMinute + (state.isSimulating ? 1 : 0));

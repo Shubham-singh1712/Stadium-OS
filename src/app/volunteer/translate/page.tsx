@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useVolunteerStore } from "@/stores/volunteerStore";
 
 const LANG_OPTIONS = ["Spanish", "French", "Arabic", "Portuguese", "German", "Japanese", "Chinese"];
 
@@ -72,6 +73,9 @@ export default function TranslatePage() {
       const key = Object.keys(phrases).find(k => translateFrom.toLowerCase().includes(k));
       setTranslateResult(key ? phrases[key] : `[${selectedLang} Translation]: "${translateFrom}" — AI translation generated. Please verify with official FIFA language services.`);
       setIsTranslating(false);
+      
+      // Complete Spanish translation task in store
+      useVolunteerStore.getState().completeTask("t5");
     }, 1000);
   };
 

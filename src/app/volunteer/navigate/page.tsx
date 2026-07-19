@@ -1,6 +1,7 @@
 "use client";
 
 import { useVolunteerStore } from "@/stores/volunteerStore";
+import { useCortexStore } from "@/stores/cortexStore";
 import dynamic from "next/dynamic";
 const StadiumMap = dynamic(() => import("@/components/stadium/StadiumMap").then((m) => m.StadiumMap), {
   ssr: false,
@@ -22,6 +23,7 @@ const STAFF_DESTINATIONS = [
 
 export default function VolunteerNavigatePage() {
   const { tasks } = useVolunteerStore();
+  const activeProtocol = useCortexStore((state) => state.activeProtocol);
 
   const activeTasks = tasks.filter(t => t.status === "accepted" || t.status === "in_progress");
   const [navTarget, setNavTarget] = useState("Gate A");
@@ -76,6 +78,24 @@ export default function VolunteerNavigatePage() {
           <span style={{ fontSize: "0.75rem", color: "hsl(210,90%,70%)", fontWeight: 700, padding: "0.25rem 0.625rem", background: "hsl(210 90% 60% / 0.12)", borderRadius: "999px" }}>
             In Progress
           </span>
+        </div>
+      )}
+
+      {activeProtocol?.status === "executing" && (
+        <div style={{
+          padding: "0.875rem 1.25rem", borderRadius: "var(--radius-md)",
+          background: "hsl(0 84% 60% / 0.08)", border: "1px solid hsl(0 84% 60% / 0.2)",
+          display: "flex", alignItems: "center", gap: "8px",
+        }}>
+          <span style={{ fontSize: "1.25rem" }}>⚠️</span>
+          <div>
+            <p style={{ fontSize: "0.75rem", color: "hsl(0,84%,70%)", fontWeight: 600, marginBottom: "0.2rem" }}>
+              CORTEX SEC-OPS REDIRECT PROTOCOL ACTIVE
+            </p>
+            <p style={{ fontSize: "0.875rem", color: "hsl(var(--foreground))" }}>
+              Gate A is currently diverting flow to Gate C. Avoid routing fans directly through Gate A turnstiles.
+            </p>
+          </div>
         </div>
       )}
 
