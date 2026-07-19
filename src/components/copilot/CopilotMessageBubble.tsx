@@ -119,7 +119,8 @@ export function CopilotMessageBubble({ msg }: { msg: CopilotMessage }) {
                       }
 
                     }}
-                    className={`btn btn-${action.variant === "primary" ? "primary" : action.variant === "danger" ? "danger" : action.variant === "success" ? "success" : "ghost"}`}
+                    className={`btn btn-${action.variant === "primary" ? "primary" : action.variant === "danger" ? "danger" : (action.variant as string) === "success" ? "success" : "ghost"}`}
+
                     style={{ fontSize: "0.8125rem" }}
                   >
                     {action.icon} {action.label}
