@@ -120,20 +120,17 @@ Return the JSON block now.`;
     let actions: CopilotAction[] = [];
 
     if (query.includes("gate") || query.includes("crowd") || query.includes("congest") || query.includes("why")) {
-      const gateA = context?.zones?.find((z: any) => z.id === "gate-a") || { current: 1850, capacity: 2000 };
+      const baseA = 1850 + Math.round(Math.sin(Date.now() / 10000) * 100);
+      const gateA = context?.zones?.find((z: StadiumZone) => z.id === "gate-a") || { current: baseA, capacity: 2000 };
       const pct = Math.round((gateA.current / gateA.capacity) * 100);
-      const matchMin = context?.matchMinute || 73;
 
-      content = `**Cortex AI Crowd Assessment & Explainability Report**
+      content = `**Cortex AI Crowd Analysis: Gate A Congestion**
 
-- **Why / Root Cause**: High concentration of spectators entering Gate A due to match clock (**Min ${matchMin}**) exit egress triggers.
-- **Evidence**: Gate A current occupancy is **${pct}%** (${gateA.current} / ${gateA.capacity} fans). Turnstiles are experiencing flow delays.
-- **Prediction**: Bottleneck will escalate to critical in next 4 minutes if current flow rate is maintained.
-- **Confidence**: 96%
-- **Expected Outcome**: Redirecting to Gate C will balance load, saving 12 minutes in exit transit times.
-- **Rollback Plan**: Re-engage Gate A turnstiles if Gate C exceeds 80% occupancy.
-- **Affected Systems**: Security gate sensors, fan wayfinding displays.`;
-      
+Observation: Gate A density is currently at **${pct}%** capacity (${gateA.current} fans present). 
+Prediction: Inflow rates will increase by 24% over the next 5 minutes due to the halftime spectator egress.
+Risk Assessment: High stampede threat at main turnstiles.
+Recommendation: Initiate **Protocol Delta-2 (Crowd Redistribution)** to divert 25% of inbound spectators to Gate C (which holds 70% available capacity).`;
+
       charts = [{
         type: "bar",
         title: "Current Gate Densities (%)",
@@ -148,20 +145,14 @@ Return the JSON block now.`;
 
       actions = [
         { id: "a1", label: "Review Protocol Delta-2", icon: "🔀", variant: "primary" },
-        { id: "a2", label: "Close Gate A Temp.", icon: "🚪", variant: "danger" }
+        { id: "a2", label: "Open Gate C Lane 4", icon: "🚪", variant: "secondary" }
       ];
-    } else if (query.includes("food") || query.includes("halftime") || query.includes("demand") || query.includes("kiosk")) {
-      const waitMin = context?.zones?.find((z: any) => z.id === "food-a")?.queueLength || 18;
-      
-      content = `**Cortex AI Concessions Rush Projection & Explainability**
+    } else if (query.includes("food") || query.includes("halftime") || query.includes("demand")) {
+      content = `**Cortex AI Halftime Concessions Rush Projection**
 
-- **Why / Root Cause**: Spectator migration to food concourse during Halftime rush window.
-- **Evidence**: Food Court A wait times average ${waitMin} minutes. Concourse queue lengths are growing by 4 spectators per minute.
-- **Prediction**: Post-halftime surge will increase Food Court B registers queue length to 45+ fans.
-- **Confidence**: 94%
-- **Expected Outcome**: Opening Kiosk 4B will split concourse queues, reducing waiting queues by 35% in 6 minutes.
-- **Rollback Plan**: Deactivate Kiosk 4B after minute 65 to optimize vendor power efficiency.
-- **Affected Systems**: Concessions POS registers, volunteer tasks, facility lighting.`;
+Analysis: Restroom S is at **88%** capacity. Food Court A queues average 34 fans with a wait time of 18 minutes.
+Prediction: Halftime will trigger an immediate +320% demand spike at Food Court A registers.
+Recommendation: Dispatch volunteers to pre-stage snack items, and instruct vendors to open backup Kiosk 4B.`;
 
       charts = [{
         type: "area",
@@ -181,15 +172,11 @@ Return the JSON block now.`;
         { id: "f2", label: "Deploy Waste Handlers", icon: "♻️", variant: "secondary" }
       ];
     } else if (query.includes("volunteer") || query.includes("staffing")) {
-      content = `**Cortex AI Staff Allocation Optimization & Explainability**
+      content = `**Cortex AI Staff Allocation Optimization**
 
-- **Why / Root Cause**: Volunteers under-allocation detected at Gate A relative to risk levels.
-- **Evidence**: Gate A reports staffing level below recommended safety boundaries while stadium risk level is "${context?.crowd?.riskLevel || "High"}".
-- **Prediction**: Stampede risk increases by 18% during exit egress if volunteer posts remain vacant.
-- **Confidence**: 97%
-- **Expected Outcome**: Auto-assigning gap allocation will dispatch 23 standby volunteers, balancing security coverage.
-- **Rollback Plan**: Revert volunteer shifts once egress settles post-match.
-- **Affected Systems**: Security operations, volunteer routing.`;
+Analysis: The East Wing sector reports a deficit of 23 volunteers. Gate A is 50% understaffed (4 active vs 8 required).
+Prediction: Crowds at halftime will trigger support delays if staffing gaps are left unresolved.
+Recommendation: Deploy the **Auto-Assign Gaps** protocol to automatically pull 4 cleaners from low-traffic sectors and dispatch standby volunteer chevrons to Gate A.`;
 
       const staffA = Math.max(2, Math.min(8, 4 + Math.round(Math.sin(Date.now() / 30000) * 2)));
       charts = [{
@@ -207,18 +194,13 @@ Return the JSON block now.`;
       actions = [
         { id: "s1", label: "Auto-Assign Gaps", icon: "👥", variant: "primary" }
       ];
-    } else if (query.includes("sustainability") || query.includes("carbon") || query.includes("energy")) {
+    } else if (query.includes("sustainability") || query.includes("carbon")) {
       const score = context?.sustainability?.aiScore || 76;
-      
-      content = `**Cortex AI Sustainability Diagnostics & BMS Adjustments**
+      content = `**Cortex AI Sustainability Diagnostics**
 
-- **Why / Root Cause**: Stadium carbon targets seek -15% peak grid usage during match time.
-- **Evidence**: Live Eco Score is **${score}/100**. Concourse lighting draws 18.4 kW power.
-- **Prediction**: Dimming lighting and rerouting shuttles cuts grid usage by 2.2 tons of CO₂.
-- **Confidence**: 95%
-- **Expected Outcome**: Reducing lighting saves energy. Rerouting buses saves emissions and improves transport times.
-- **Rollback Plan**: Restore full concourse illumination in case of evacuation alert.
-- **Affected Systems**: Facility BMS grid, fan transportation routes.`;
+Analysis: Stadium Eco Score is at **${score}/100**. Public transit usage is at 62%, on track to hit targets.
+Prediction: Dimming concourse lighting by 12% in Sector C and activating vegetable-only menus will lower carbon output by 2.5t CO₂.
+Recommendation: Push the BMS dimming adjustment command and enable the green menu registers.`;
 
       const carbonVal = context?.sustainability?.carbonKg ? Math.round((1 - context.sustainability.carbonKg / 50000) * 100) : 84;
       const energyVal = context?.sustainability?.energyKwh ? Math.round((1 - context.sustainability.energyKwh / 20000) * 100) : 74;
@@ -238,17 +220,6 @@ Return the JSON block now.`;
         { id: "e1", label: "Dim Arena Lights 8%", icon: "💡", variant: "secondary" },
         { id: "e2", label: "Activate Green Menu", icon: "🥗", variant: "secondary" }
       ];
-
-    } else if (query.includes("action") || query.includes("taken") || query.includes("memory") || query.includes("history")) {
-      const memoryLines = context?.cortexMemory?.map((m: any) => `- **${m.time}**: ${m.action} (${m.details})`).join("\n") || "No operations actions recorded in Cortex Memory yet.";
-      
-      content = `**Cortex AI System Actions Memory Trace**
-
-Below is the record of executed operations actions saved in Cortex Memory during the current match:
-
-${memoryLines}
-
-All modifications successfully completed have propagated through the active operating system. Let me know if you wish to analyze the feedback impact on dependent dashboards.`;
     } else {
       content = `**Cortex AI Situational Assessment**
 
@@ -259,7 +230,7 @@ I'm ready to evaluate detailed operations. Try querying:
 - "Why is Gate A so crowded?"
 - "Predict food demand for halftime"
 - "Where should volunteers be deployed?"
-- "What actions have we already taken?"`;
+- "What's the sustainability impact today?"`;
 
       actions = [
         { id: "g1", label: "Review Warnings", icon: "⚠️", variant: "secondary" }
@@ -277,4 +248,3 @@ I'm ready to evaluate detailed operations. Try querying:
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
-

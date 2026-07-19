@@ -18,6 +18,7 @@ const STAFF_ROLES = [
 export default function StaffingPage() {
   const addTimelineEvent = useCortexStore((state) => state.addTimelineEvent);
   const autoAssignStaff = useCortexStore((state) => state.autoAssignStaff);
+  const assignStaffToZone = useCortexStore((state) => state.assignStaffToZone);
   const zones = useCortexStore((state) => state.zones);
 
   // ── Derive live sector gaps from store zones ──────────────────────────────
@@ -179,8 +180,7 @@ export default function StaffingPage() {
                   aria-label={`Assign ${sector.gap} staff to ${sector.sector}`}
                   style={{ width: "100%", justifyContent: "center", fontSize: "0.8125rem" }}
                   onClick={() => {
-                    autoAssignStaff();
-                    addTimelineEvent("Staffing", `Deployed ${sector.gap} additional staff to ${sector.sector}`, "info");
+                    assignStaffToZone(sector.sector);
                   }}
                 >
                   Assign {sector.gap} Staff
