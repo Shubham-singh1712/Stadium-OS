@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 import React from "react";
@@ -18,7 +18,7 @@ describe("Providers Component", () => {
   });
 
   it("should render children and initialize lang and session", async () => {
-    (global.fetch as any).mockResolvedValueOnce({
+    (global.fetch as vi.Mock).mockResolvedValueOnce({
       json: async () => ({ user: { id: "1", role: "fan", language: "es" } }),
     });
 
@@ -39,7 +39,7 @@ describe("Providers Component", () => {
   });
 
   it("should handle failed session fetch gracefully", async () => {
-    (global.fetch as any).mockRejectedValueOnce(new Error("Network Error"));
+    (global.fetch as vi.Mock).mockRejectedValueOnce(new Error("Network Error"));
 
     render(
       <Providers>

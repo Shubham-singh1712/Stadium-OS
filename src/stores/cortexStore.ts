@@ -90,9 +90,15 @@ interface CortexState {
   rerouteShuttles: () => void;
   dispatchWasteSort: () => void;
   incrementRecycling: () => void;
+  openKiosk4B: () => void;
+  activateParkingC: () => void;
+  deployMetroStaff: () => void;
+  preStageConcessions: () => void;
+  matchMinute: number;
 }
 
 export const useCortexStore = create<CortexState>((set, get) => ({
+  matchMinute: 73,
   zones: ENHANCED_INITIAL_ZONES,
   crowd: {
     totalAttendance: 78420,
@@ -465,6 +471,8 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         }));
       }
 
+      const nextMatchMinute = Math.min(90, state.matchMinute + (state.isSimulating ? 1 : 0));
+
       return {
         zones,
         crowd,
@@ -473,6 +481,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
         vendors,
         transport,
         activeScenario: nextScenario,
+        matchMinute: nextMatchMinute,
         lastUpdated: new Date()
       };
     });
@@ -542,6 +551,7 @@ export const useCortexStore = create<CortexState>((set, get) => ({
             zones: newZones,
             scenarioStageHeldAt: heldAt,
             activeScenario: { ...prevState.activeScenario!, stage: data.nextStage },
+            matchMinute: Math.min(90, prevState.matchMinute + 1),
             crowd: {
               ...prevState.crowd,
               riskScore: data.riskScore || prevState.crowd.riskScore,
@@ -749,4 +759,107 @@ export const useCortexStore = create<CortexState>((set, get) => ({
 
   startSimulation: () => set({ isSimulating: true }),
   stopSimulation: () => set({ isSimulating: false }),
+
+  openKiosk4B: () => {
+    const { addTimelineEvent, addToast } = get();
+    set((state) => {
+      const updatedVendors = state.vendors.map((v) =>
+        v.id === "v3" ? { ...v, queueLength: Math.max(1, v.queueLength - 5), waitMinutes: Math.max(1, v.waitMinutes - 3), efficiency: 89 } : v
+      );
+      const updatedZones = state.zones.map((z) =>
+        z.id === "food-b" ? { ...z, status: "green" as const, queueLength: Math.max(1, (z.queueLength || 7) - 5) } : z
+      );
+      
+      useVolunteerStore.getState().addTask({
+        title: "Manage Concessions Queue Overflow",
+        description: "Staff activated Kiosk 4B. Coordinate line placement and assist food service flow.",
+        priority: "medium",
+        zone: "Food Court B",
+        estimatedMinutes: 10,
+        aiGenerated: true,
+      });
+
+      addToast("🍔 Concessions Kiosk Active", "Kiosk 4B registers online; concessions queues stabilized.", "success");
+      addTimelineEvent("Facility", "Protocol Concessions-Kiosk: Opened secondary queue lanes at Food Court B.", "success");
+
+      return {
+        ...state,
+        vendors: updatedVendors,
+        zones: updatedZones,
+      };
+    });
+  },
+
+  activateParkingC: () => {
+    const { addTimelineEvent, addToast } = get();
+    set((state) => {
+      const updatedZones = state.zones.map((z) => {
+        if (z.id === "park-a") {
+          return { ...z, current: Math.max(800, z.current - 450), status: "yellow" as const };
+        }
+        if (z.id === "park-c") {
+          return { ...z, current: Math.min(z.capacity, z.current + 350) };
+        }
+        return z;
+      });
+
+      useVolunteerStore.getState().addTask({
+        title: "Redirection Patrol: Parking Lot C",
+        description: "Direct traffic from saturated Parking Lot A to Parking Lot C.",
+        priority: "high",
+        zone: "Parking Lot C",
+        estimatedMinutes: 12,
+        aiGenerated: true,
+      });
+
+      addToast("🚗 Parking Redirect Initiated", "Diverting inbound traffic from Parking Lot A to Parking Lot C.", "success");
+      addTimelineEvent("Operations", "Protocol Parking-Divert: Activated vehicular traffic diversion flow to Parking Lot C.", "warning");
+
+      return {
+        ...state,
+        zones: updatedZones,
+      };
+    });
+  },
+
+  deployMetroStaff: () => {
+    const { addTimelineEvent, addToast } = get();
+    set((state) => {
+      const updatedTransport = state.transport.map((t) =>
+        t.id === "tr-1" ? { ...t, crowding: "green" as const, aiNote: "Volunteers active on platforms. Flow optimal." } : t
+      );
+
+      useVolunteerStore.getState().addTask({
+        title: "Metro East Flow Management",
+        description: "Guide fans onto platforms and prevent corridor build-ups.",
+        priority: "medium",
+        zone: "Metro East",
+        estimatedMinutes: 15,
+        aiGenerated: true,
+      });
+
+      addToast("🚇 Metro Staff Deployed", "Redeployed platform volunteers to Metro East Station.", "success");
+      addTimelineEvent("Transport", "Protocol Transit-Staff: Staff deployed to platform zones to manage egress bottlenecks.", "info");
+
+      return {
+        ...state,
+        transport: updatedTransport,
+      };
+    });
+  },
+
+  preStageConcessions: () => {
+    const { addTimelineEvent, addToast } = get();
+    set((state) => {
+      const updatedVendors = state.vendors.map((v) =>
+        v.zone === "Food Court A" ? { ...v, waitMinutes: Math.max(2, v.waitMinutes - 4), efficiency: Math.min(100, v.efficiency + 10) } : v
+      );
+      addToast("🍔 Concessions Pre-Staging Active", "Inventory pre-stage signal sent; concession prep efficiency improved.", "success");
+      addTimelineEvent("Facility", "Protocol Concessions-Stage: Inventory staging optimized at Food Court A.", "info");
+      return {
+        ...state,
+        vendors: updatedVendors,
+      };
+    });
+  },
 }));

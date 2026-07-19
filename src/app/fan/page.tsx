@@ -11,6 +11,7 @@ export default function FanPage() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const activeProtocol = useCortexStore((state) => state.activeProtocol);
+  const matchMinute = useCortexStore((state) => state.matchMinute);
   
   const userName = user?.name ? user.name.split(" ")[0] : "Alex";
   const userSector = user?.sector ?? "Section 112, Row G, Seat 14";
@@ -23,7 +24,7 @@ export default function FanPage() {
       <div>
         <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Welcome, {userName}!</h2>
         <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
-          Your seat: {userSector} · USA 🇺🇸 vs BRA 🇧🇷 · 73′
+          Your seat: {userSector} · USA 🇺🇸 vs BRA 🇧🇷 · {matchMinute}′
         </p>
       </div>
 
@@ -103,7 +104,7 @@ export default function FanPage() {
               </div>
             </div>
             <div style={{ textAlign: "center", color: "hsl(var(--foreground-muted))", fontSize: "0.875rem" }}>
-              73′ · Semi-Final · FIFA World Cup 2026
+              {matchMinute}′ · Semi-Final · FIFA World Cup 2026
             </div>
           </div>
 

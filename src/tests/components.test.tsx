@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { CortexCard } from "../components/cortex/CortexCard";
@@ -39,7 +39,7 @@ const mockState = {
 };
 
 vi.mock("../stores/cortexStore", () => {
-  const useCortexStoreMock = (selector?: (state: any) => any) => {
+  const useCortexStoreMock = (selector?: (state: typeof mockState) => unknown) => {
     if (selector) return selector(mockState);
     return mockState;
   };

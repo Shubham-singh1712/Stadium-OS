@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
@@ -8,7 +8,7 @@ import { GateTelemetry } from "../components/cortex/GateTelemetry";
 
 const mockTriggerScenario = vi.fn();
 vi.mock("../stores/cortexStore", () => ({
-  useCortexStore: (selector: any) => {
+  useCortexStore: (selector: (state: { triggerSimulationScenario: typeof mockTriggerScenario }) => unknown) => {
     return selector({ triggerSimulationScenario: mockTriggerScenario });
   }
 }));

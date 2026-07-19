@@ -9,7 +9,7 @@ const WINDOW_MS = 60000; // 1 minute
 
 const requestSchema = z.object({
   scenario: z.string(),
-  currentState: z.any(),
+  currentState: z.unknown(),
 });
 
 export async function POST(req: Request) {
@@ -46,6 +46,10 @@ export async function POST(req: Request) {
     }
 
     const { scenario, currentState } = parsed.data;
+    const simState = currentState as {
+      activeScenario?: { stage: number };
+      crowd?: { riskScore: number };
+    } | null | undefined;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (apiKey) {
@@ -103,8 +107,8 @@ You must respond ONLY with a JSON object that satisfies this schema:
       newTimelineEvents: [],
       newAlerts: [],
       zoneUpdates: [],
-      nextStage: currentState?.activeScenario?.stage || 0,
-      riskScore: currentState?.crowd?.riskScore || 50,
+      nextStage: simState?.activeScenario?.stage || 0,
+      riskScore: simState?.crowd?.riskScore || 50,
       riskLevel: "Moderate"
     });
 

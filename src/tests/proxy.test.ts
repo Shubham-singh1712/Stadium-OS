@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from "vitest";
 import { proxy } from "../proxy";
+import type { NextRequest } from "next/server";
 
 describe("Route Guard proxy middleware", () => {
   const buildMockRequest = (path: string, roleCookieValue?: string) => {
@@ -17,7 +17,7 @@ describe("Route Guard proxy middleware", () => {
         pathname: path,
         clone: () => new URL("http://localhost:3000" + path),
       }
-    } as any;
+    } as unknown as NextRequest;
   };
 
   it("should allow request when visiting non-protected path", () => {

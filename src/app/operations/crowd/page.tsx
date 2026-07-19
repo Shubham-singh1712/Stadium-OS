@@ -2,7 +2,7 @@
 
 import { useCortexStore } from "@/stores/cortexStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { OperationalChart } from "@/components/ui/OperationalChart";
 import { toast } from "sonner";
 
 export default function CrowdIntelPage() {
@@ -101,26 +101,17 @@ export default function CrowdIntelPage() {
         {/* Density trend */}
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Density vs. Prediction</h3>
-          <ResponsiveContainer width="100%" height={220} role="img" aria-label="Crowd density breakdown chart">
-            <AreaChart data={crowd.densityHistory}>
-              <defs>
-                <linearGradient id="dg1" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(210,90%,60%)" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="hsl(210,90%,60%)" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="dg2" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(0,84%,60%)" stopOpacity={0.2} />
-                  <stop offset="100%" stopColor="hsl(0,84%,60%)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" />
-              <XAxis dataKey="time" tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} unit="%" domain={[0, 100]} />
-              <Tooltip contentStyle={{ background: "hsl(var(--surface-2))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
-              <Area type="monotone" dataKey="density" name="Actual %" stroke="hsl(210,90%,60%)" fill="url(#dg1)" strokeWidth={2} dot={false} />
-              <Area type="monotone" dataKey="predicted" name="Predicted %" stroke="hsl(0,84%,60%)" fill="url(#dg2)" strokeWidth={2} dot={false} strokeDasharray="5 3" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <OperationalChart
+            type="area"
+            data={crowd.densityHistory}
+            xKey="time"
+            series={[
+              { key: "density", color: "hsl(210,90%,60%)", name: "Actual %" },
+              { key: "predicted", color: "hsl(0,84%,60%)", name: "Predicted %" }
+            ]}
+            height={220}
+            ariaLabel="Crowd density breakdown chart"
+          />
           <div className="sr-only">
             <h4>Density vs Prediction Trend Summary</h4>
             <p>Live crowd density matches predicted curves. Current occupancy rate is {crowd.occupancyRate}%.</p>
@@ -130,31 +121,20 @@ export default function CrowdIntelPage() {
         {/* Zone occupancy */}
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Zone Occupancy</h3>
-          <ResponsiveContainer width="100%" height={220} role="img" aria-label="Gate flow rates chart">
-            <BarChart
-              data={zones.slice(0, 8).map(z => ({
-                name: z.name.replace("Gate ", "G").replace("Food Court ", "FC").replace("Parking ", "P").replace("Restroom ", "R"),
-                pct: Math.round((z.current / z.capacity) * 100),
-                fill: z.status === "red" ? "hsl(0,84%,55%)" : z.status === "yellow" ? "hsl(42,95%,52%)" : "hsl(152,70%,45%)",
-              }))}
-              barSize={20}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 9, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} unit="%" domain={[0, 100]} />
-              <Tooltip contentStyle={{ background: "hsl(var(--surface-2))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(v) => [`${v}%`, "Occupancy"]} />
-              <Bar dataKey="pct" name="Occupancy" radius={[4, 4, 0, 0]}>
-                {zones.slice(0, 8).map((zone) => (
-                  <rect 
-                    key={zone.id} 
-                    fill={zone.status === "red" ? "hsl(0,84%,55%)" : zone.status === "yellow" ? "hsl(42,95%,52%)" : "hsl(152,70%,45%)"} 
-                    role="img"
-                    aria-label={`${zone.name} occupancy: ${Math.round((zone.current / zone.capacity) * 100)}%`}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+          <OperationalChart
+            type="bar"
+            data={zones.slice(0, 8).map(z => ({
+              name: z.name.replace("Gate ", "G").replace("Food Court ", "FC").replace("Parking ", "P").replace("Restroom ", "R"),
+              pct: Math.round((z.current / z.capacity) * 100),
+              fill: z.status === "red" ? "hsl(0,84%,55%)" : z.status === "yellow" ? "hsl(42,95%,52%)" : "hsl(152,70%,45%)",
+            }))}
+            xKey="name"
+            series={[
+              { key: "pct", color: "hsl(152,70%,45%)", name: "Occupancy" }
+            ]}
+            height={220}
+            ariaLabel="Gate flow rates chart"
+          />
           <div className="sr-only">
             <h4>Zone Occupancy Summary</h4>
             <ul>

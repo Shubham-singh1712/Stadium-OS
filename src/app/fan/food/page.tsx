@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 export default function FoodPage() {
   const zones = useCortexStore((state) => state.zones);
   const vendors = useCortexStore((state) => state.vendors);
+  const matchMinute = useCortexStore((state) => state.matchMinute);
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
 
@@ -25,7 +26,7 @@ export default function FoodPage() {
       <div>
         <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Welcome, {userName}!</h2>
         <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
-          Your seat: {userSector} · USA 🇺🇸 vs BRA 🇧🇷 · 73′
+          Your seat: {userSector} · USA 🇺🇸 vs BRA 🇧🇷 · {matchMinute}′
         </p>
       </div>
 

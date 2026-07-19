@@ -31,6 +31,7 @@ export function HeaderBar({ roleMenuOpen, setRoleMenuOpen }: HeaderProps) {
   const logout = useAuthStore((state) => state.logout);
   const alerts = useCortexStore((state) => state.alerts);
   const lastUpdated = useCortexStore((state) => state.lastUpdated);
+  const matchMinute = useCortexStore((state) => state.matchMinute);
   const router = useRouter();
 
   const [mounted, setMounted] = useState(false);
@@ -110,7 +111,7 @@ export function HeaderBar({ roleMenuOpen, setRoleMenuOpen }: HeaderProps) {
         </span>
         <span style={{ fontWeight: 600 }}>BRA</span>
         <span>🇧🇷</span>
-        <span style={{ color: "hsl(var(--foreground-muted))", marginLeft: "0.25rem" }}>73′</span>
+        <span style={{ color: "hsl(var(--foreground-muted))", marginLeft: "0.25rem" }}>{matchMinute}′</span>
       </div>
 
       {/* Stadium occupancy */}

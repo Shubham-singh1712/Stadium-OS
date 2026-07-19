@@ -2,13 +2,13 @@
 
 import { useCortexStore } from "@/stores/cortexStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { OperationalChart } from "@/components/ui/OperationalChart";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
 
 export default function VendorsPage() {
   const vendors = useCortexStore((state) => state.vendors);
-  const addTimelineEvent = useCortexStore((state) => state.addTimelineEvent);
+  const openKiosk4B = useCortexStore((state) => state.openKiosk4B);
+  const preStageConcessions = useCortexStore((state) => state.preStageConcessions);
 
   const revenueData = vendors.map((v) => ({ name: v.name.split(" ")[0], revenue: v.revenue, queue: v.queueLength }));
   const totalRevenue = vendors.reduce((s, v) => s + v.revenue, 0);
@@ -34,16 +34,14 @@ export default function VendorsPage() {
             label: "Open Kiosk 4B",
             variant: "primary",
             onClick: () => {
-              toast.success("Kiosk 4B activated.");
-              addTimelineEvent("Facility", "Vendor Operations activated adjacent Kiosk 4B at Food Court A.", "info");
+              openKiosk4B();
             }
           },
           {
             label: "Pre-Stage Inventory",
             variant: "ghost",
             onClick: () => {
-              toast.success("Inventory alert sent to kitchen.");
-              addTimelineEvent("Facility", "Inventory pre-stage signal broadcasted to concessions kitchens.", "info");
+              preStageConcessions();
             }
           },
         ]}
@@ -60,15 +58,14 @@ export default function VendorsPage() {
               ))}
             </ul>
           </div>
-          <ResponsiveContainer width="100%" height={220} role="img" aria-label="Vendor queues and wait times chart">
-            <BarChart data={revenueData} barSize={24}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: "hsl(var(--surface-2))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(v) => [`$${Number(v).toLocaleString()}`, "Revenue"]} />
-              <Bar dataKey="revenue" fill="hsl(152,70%,45%)" radius={[4,4,0,0]} name="Revenue" />
-            </BarChart>
-          </ResponsiveContainer>
+          <OperationalChart
+            type="bar"
+            data={revenueData}
+            xKey="name"
+            series={[{ key: "revenue", color: "hsl(152,70%,45%)", name: "Revenue" }]}
+            height={220}
+            ariaLabel="Vendor queues and wait times chart"
+          />
         </div>
 
         <div className="glass-card">
@@ -81,15 +78,14 @@ export default function VendorsPage() {
               ))}
             </ul>
           </div>
-          <ResponsiveContainer width="100%" height={220} role="img" aria-label="Vendor revenue and efficiency chart">
-            <BarChart data={revenueData} barSize={24}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: "hsl(var(--surface-2))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} formatter={(v) => [`${v} people`, "Queue"]} />
-              <Bar dataKey="queue" fill="hsl(210,90%,55%)" radius={[4,4,0,0]} name="Queue" />
-            </BarChart>
-          </ResponsiveContainer>
+          <OperationalChart
+            type="bar"
+            data={revenueData}
+            xKey="name"
+            series={[{ key: "queue", color: "hsl(210,90%,55%)", name: "Queue" }]}
+            height={220}
+            ariaLabel="Vendor revenue and efficiency chart"
+          />
         </div>
       </div>
 

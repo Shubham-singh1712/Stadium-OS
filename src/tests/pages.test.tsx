@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import React from "react";
@@ -72,7 +72,7 @@ const mockStoreState = {
 };
 
 vi.mock("../stores/cortexStore", () => {
-  const useCortexStoreMock = (selector?: (state: any) => any) => {
+  const useCortexStoreMock = (selector?: (state: typeof mockStoreState) => unknown) => {
     if (selector) return selector(mockStoreState);
     return mockStoreState;
   };
@@ -89,7 +89,7 @@ const mockVolunteerState = {
 };
 
 vi.mock("../stores/volunteerStore", () => {
-  const useVolunteerStoreMock = (selector?: (state: any) => any) => {
+  const useVolunteerStoreMock = (selector?: (state: typeof mockVolunteerState) => unknown) => {
     if (selector) return selector(mockVolunteerState);
     return mockVolunteerState;
   };
@@ -110,7 +110,7 @@ const mockAuthState = {
 };
 
 vi.mock("../stores/authStore", () => {
-  const useAuthStoreMock = (selector?: (state: any) => any) => {
+  const useAuthStoreMock = (selector?: (state: typeof mockAuthState) => unknown) => {
     if (selector) return selector(mockAuthState);
     return mockAuthState;
   };

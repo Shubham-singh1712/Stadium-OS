@@ -6,28 +6,9 @@ import { OperationsTimeline } from "@/components/operations/OperationsTimeline";
 import { CortexCard } from "@/components/cortex/CortexCard";
 import { ActiveAlertList } from "@/components/operations/ActiveAlertList";
 import { VendorPerformanceList } from "@/components/operations/VendorPerformanceList";
-import {
-  AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-} from "recharts";
+import { OperationalChart } from "@/components/ui/OperationalChart";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-
-const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; name: string; color: string }>; label?: string }) => {
-  if (active && payload?.length) {
-    return (
-      <div className="tooltip">
-        <p style={{ marginBottom: "0.25rem", fontSize: "0.75rem", color: "hsl(var(--foreground-subtle))" }}>{label}</p>
-        {payload.map((p) => (
-          <p key={p.name} style={{ color: p.color, fontSize: "0.875rem", fontWeight: 600 }}>
-            {p.name}: {p.value}%
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};
 
 const stagger = { show: { transition: { staggerChildren: 0.07 } } };
 
@@ -46,6 +27,10 @@ export default function OperationsPage() {
   const setProtocolStatus = useCortexStore((state) => state.setProtocolStatus);
   const cancelProtocol = useCortexStore((state) => state.cancelProtocol);
   const addTimelineEvent = useCortexStore((state) => state.addTimelineEvent);
+  const openKiosk4B = useCortexStore((state) => state.openKiosk4B);
+  const activateParkingC = useCortexStore((state) => state.activateParkingC);
+  const deployMetroStaff = useCortexStore((state) => state.deployMetroStaff);
+  const matchMinute = useCortexStore((state) => state.matchMinute);
 
   const isGateAActiveProtocol = activeProtocol && activeProtocol.zoneId === "gate-a";
   const workflowStep = isGateAActiveProtocol ? activeProtocol.status : "idle";
@@ -77,7 +62,7 @@ export default function OperationsPage() {
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <span className="live-dot" />
           <span style={{ fontSize: "0.8125rem", color: "hsl(var(--foreground-muted))" }}>
-            Live · {lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+            Live · Minute {matchMinute}′ · {lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
           </span>
         </div>
       </motion.div>
@@ -237,36 +222,17 @@ export default function OperationsPage() {
           <p className="sr-only">
             Crowd Flow chart showing real-time attendance trends against predicted values over the last hour.
           </p>
-          <ResponsiveContainer width="100%" height={200} role="img" aria-label="Crowd density history chart">
-            <AreaChart data={crowd.densityHistory}>
-              <defs>
-                <linearGradient id="densityGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(210,90%,60%)" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="hsl(210,90%,60%)" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="predGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(152,70%,50%)" stopOpacity={0.2} />
-                  <stop offset="100%" stopColor="hsl(152,70%,50%)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" />
-              <XAxis dataKey="time" tick={{ fontSize: 11, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} domain={[0, 100]} unit="%" />
-              <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="density" name="density" stroke="hsl(210,90%,60%)" fill="url(#densityGrad)" strokeWidth={2} dot={false} />
-              <Area type="monotone" dataKey="predicted" name="predicted" stroke="hsl(152,70%,50%)" fill="url(#predGrad)" strokeWidth={2} dot={false} strokeDasharray="4 2" />
-            </AreaChart>
-          </ResponsiveContainer>
-          <div style={{ display: "flex", gap: "1rem", marginTop: "0.75rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.75rem", color: "hsl(var(--foreground-muted))" }}>
-              <div style={{ width: 12, height: 2, background: "hsl(210,90%,60%)", borderRadius: 2 }} />
-              Actual
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.75rem", color: "hsl(var(--foreground-muted))" }}>
-              <div style={{ width: 12, height: 2, background: "hsl(152,70%,50%)", borderRadius: 2, opacity: 0.7 }} />
-              Predicted
-            </div>
-          </div>
+          <OperationalChart
+            type="area"
+            data={crowd.densityHistory}
+            xKey="time"
+            series={[
+              { key: "density", color: "hsl(210,90%,60%)", name: "Actual" },
+              { key: "predicted", color: "hsl(152,70%,50%)", name: "Predicted" }
+            ]}
+            height={200}
+            ariaLabel="Crowd density history chart"
+          />
         </div>
 
         {/* Zone status chart */}
@@ -280,21 +246,18 @@ export default function OperationsPage() {
           <p className="sr-only">
             Zone Status Overview chart. Current numbers are: {criticalZones} critical, {warningZones} warning.
           </p>
-          <ResponsiveContainer width="100%" height={200} role="img" aria-label="Zone status overview chart">
-            <BarChart data={zoneData} barSize={18} barGap={4}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} allowDecimals={false} />
-              <Tooltip
-                contentStyle={{ background: "hsl(var(--surface-2))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                itemStyle={{ color: "hsl(var(--foreground))" }}
-                labelStyle={{ color: "hsl(var(--foreground-muted))", marginBottom: 4 }}
-              />
-              <Bar dataKey="green" name="OK" fill="hsl(152,70%,50%)" radius={[4,4,0,0]} />
-              <Bar dataKey="yellow" name="Warning" fill="hsl(42,95%,58%)" radius={[4,4,0,0]} />
-              <Bar dataKey="red" name="Critical" fill="hsl(0,84%,60%)" radius={[4,4,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <OperationalChart
+            type="bar"
+            data={zoneData}
+            xKey="name"
+            series={[
+              { key: "green", color: "hsl(152,70%,50%)", name: "OK" },
+              { key: "yellow", color: "hsl(42,95%,58%)", name: "Warning" },
+              { key: "red", color: "hsl(0,84%,60%)", name: "Critical" }
+            ]}
+            height={200}
+            ariaLabel="Zone status overview chart"
+          />
         </div>
       </motion.div>
 
@@ -345,14 +308,17 @@ export default function OperationsPage() {
                     border: "none", cursor: "pointer", fontSize: "0.8125rem", fontWeight: 600,
                   }}
                   onClick={() => {
-                    toast.promise(new Promise(res => setTimeout(res, 1000)), {
-                      loading: `Executing: ${p.action}...`,
-                      success: () => {
-                        addTimelineEvent("automation", `AI executed automated action: ${p.action} for ${p.label}`, p.severity === "red" ? "critical" : "warning");
-                        return `Successfully executed ${p.action}`;
-                      },
-                      error: 'Action failed',
-                    });
+                    if (p.action === "Redirect") {
+                      startProtocol("gate-a", "Protocol Delta-2", "Crowd Redistribution");
+                    } else if (p.action === "Open Kiosk 4B") {
+                      openKiosk4B();
+                    } else if (p.action === "Activate C") {
+                      activateParkingC();
+                    } else if (p.action === "Deploy Staff") {
+                      deployMetroStaff();
+                    } else {
+                      toast.success(`Action: ${p.action} dispatched.`);
+                    }
                   }}
                 >
                   {p.action}

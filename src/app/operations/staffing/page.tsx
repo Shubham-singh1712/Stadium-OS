@@ -3,7 +3,7 @@
 import { useCortexStore } from "@/stores/cortexStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
 import { motion } from "framer-motion";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { OperationalChart } from "@/components/ui/OperationalChart";
 import { toast } from "sonner";
 
 // Static role breakdown (does not change with zone data but reflects overall composition)
@@ -54,7 +54,7 @@ export default function StaffingPage() {
   });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+    <div className="flex flex-col gap-6">
       <div>
         <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Staffing Optimizer</h2>
         <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
@@ -86,7 +86,7 @@ export default function StaffingPage() {
         ]}
       />
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem" }}>
+      <div className="grid grid-cols-2 gap-5">
         {/* Staff by role */}
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Deployment by Role</h3>
@@ -139,16 +139,19 @@ export default function StaffingPage() {
               ))}
             </ul>
           </div>
-          <ResponsiveContainer width="100%" height={280} role="img" aria-label="Staffing allocation and efficiency chart">
-            <BarChart data={sectorGaps} layout="vertical" barSize={16}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" horizontal={false} />
-              <XAxis type="number" tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="sector" tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} width={80} />
-              <Tooltip contentStyle={{ background: "hsl(var(--surface-2))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
-              <Bar dataKey="staffed" name="Staffed" fill="hsl(210,90%,55%)" radius={[0, 4, 4, 0]} stackId="a" />
-              <Bar dataKey="gap" name="Gap" fill="hsl(0,84%,55%)" radius={[0, 4, 4, 0]} stackId="a" />
-            </BarChart>
-          </ResponsiveContainer>
+          <OperationalChart
+            type="bar"
+            data={sectorGaps}
+            xKey="sector"
+            series={[
+              { key: "staffed", color: "hsl(210,90%,55%)", name: "Staffed" },
+              { key: "gap", color: "hsl(0,84%,55%)", name: "Gap" }
+            ]}
+            height={280}
+            ariaLabel="Staffing allocation and efficiency chart"
+            stacked={true}
+            layout="vertical"
+          />
         </div>
       </div>
 

@@ -1,12 +1,30 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { playAlertSynth } from "../lib/audio";
 
+interface MockOscillator {
+  connect: vi.Mock;
+  start: vi.Mock;
+  stop: vi.Mock;
+  frequency: {
+    setValueAtTime: vi.Mock;
+    exponentialRampToValueAtTime: vi.Mock;
+  };
+  type?: string;
+}
+
+interface MockGain {
+  connect: vi.Mock;
+  gain: {
+    setValueAtTime: vi.Mock;
+    exponentialRampToValueAtTime: vi.Mock;
+  };
+}
+
 describe("Audio - playAlertSynth", () => {
-  let mockOscillator: any;
-  let mockGain: any;
-  let createOscillatorMock: any;
-  let createGainMock: any;
+  let mockOscillator: MockOscillator;
+  let mockGain: MockGain;
+  let createOscillatorMock: vi.Mock;
+  let createGainMock: vi.Mock;
 
   beforeEach(() => {
     mockOscillator = {

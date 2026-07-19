@@ -3,7 +3,8 @@
 import { useCortexStore } from "@/stores/cortexStore";
 import { useVolunteerStore } from "@/stores/volunteerStore";
 import { CortexCard } from "@/components/cortex/CortexCard";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, RadarChart, PolarGrid, PolarAngleAxis, Radar } from "recharts";
+import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer } from "recharts";
+import { OperationalChart } from "@/components/ui/OperationalChart";
 import { motion } from "framer-motion";
 
 export default function SustainabilityPage() {
@@ -54,9 +55,9 @@ export default function SustainabilityPage() {
   }));
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+    <div className="flex flex-col gap-6">
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+      <div className="flex items-start justify-between">
         <div>
           <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Sustainability Center</h2>
           <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>AI Score: {s.aiScore}/100 · Trend: {s.trend === "improving" ? "📈 Improving" : s.trend === "neutral" ? "➡ Stable" : "📉 Worsening"}</p>
@@ -96,7 +97,7 @@ export default function SustainabilityPage() {
       />
 
       {/* Metrics grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.map((m) => (
           <motion.div
             key={m.label}
@@ -104,7 +105,7 @@ export default function SustainabilityPage() {
             animate={{ opacity: 1, y: 0 }}
             className="glass-card"
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+            <div className="flex justify-between items-center mb-3">
               <span style={{ fontSize: "0.8125rem", color: "hsl(var(--foreground-muted))" }}>{m.label}</span>
               <span style={{ fontSize: "1.25rem" }}>{m.icon}</span>
             </div>
@@ -127,25 +128,18 @@ export default function SustainabilityPage() {
       </div>
 
       {/* Charts Row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem" }}>
+      <div className="grid grid-cols-2 gap-5">
         {/* Carbon trend */}
         <div className="glass-card">
           <h3 style={{ fontWeight: 600, marginBottom: "1rem" }}>Carbon Footprint Trend (tons)</h3>
-          <ResponsiveContainer width="100%" height={200} role="img" aria-label="Energy consumption and carbon footprint chart">
-            <AreaChart data={trendData}>
-              <defs>
-                <linearGradient id="cGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(152,70%,50%)" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="hsl(152,70%,50%)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(215 20% 18%)" />
-              <XAxis dataKey="hour" tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "hsl(215 15% 45%)" }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: "hsl(var(--surface-2))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
-              <Area type="monotone" dataKey="carbon" stroke="hsl(152,70%,50%)" fill="url(#cGrad)" strokeWidth={2} dot={false} name="CO₂ (t)" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <OperationalChart
+            type="area"
+            data={trendData}
+            xKey="hour"
+            series={[{ key: "carbon", color: "hsl(152,70%,50%)", name: "CO₂ (t)" }]}
+            height={200}
+            ariaLabel="Energy consumption and carbon footprint chart"
+          />
           <div className="sr-only">
             <h4>Carbon Footprint Trend Summary</h4>
             <p>Carbon footprint has decreased from 12.2 tons at 18:00 to 8.4 tons at 21:00.</p>

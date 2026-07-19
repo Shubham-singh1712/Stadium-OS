@@ -28,6 +28,7 @@ function NavigationContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const zones = useCortexStore((state) => state.zones);
+  const matchMinute = useCortexStore((state) => state.matchMinute);
   const user = useAuthStore((state) => state.user);
 
   const userName = user?.name ? user.name.split(" ")[0] : "Alex";
@@ -102,7 +103,7 @@ function NavigationContent() {
         <div>
           <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.03em" }}>Welcome, {userName}!</h2>
           <p style={{ fontSize: "0.9375rem", color: "hsl(var(--foreground-muted))" }}>
-            {userSector.split(",").join(" · ")} &nbsp;·&nbsp; USA 🇺🇸 vs BRA 🇧🇷 &nbsp;·&nbsp; 73′
+            {userSector.split(",").join(" · ")} &nbsp;·&nbsp; USA 🇺🇸 vs BRA 🇧🇷 &nbsp;·&nbsp; {matchMinute}′
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>

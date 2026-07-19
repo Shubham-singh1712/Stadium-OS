@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { NextRequest } from "next/server";
 
 // ─── Mock fetch globally ───────────────────────────────────────────────────────
 const mockFetch = vi.fn();
@@ -12,7 +12,7 @@ vi.stubEnv("GEMINI_API_KEY", "");
 import { POST } from "../app/api/cortex/route";
 
 // ─── Helper: build a mock NextRequest ─────────────────────────────────────────
-function buildRequest(body: object, origin?: string, host?: string) {
+function buildRequest(body: object, origin?: string, host?: string): NextRequest {
   const headers = new Headers();
   headers.set("host", host ?? "localhost:3000");
   if (origin) headers.set("origin", origin);
@@ -22,7 +22,7 @@ function buildRequest(body: object, origin?: string, host?: string) {
     method: "POST",
     headers,
     body: JSON.stringify(body),
-  });
+  }) as unknown as NextRequest;
 }
 
 const baseMessages = [
@@ -42,7 +42,7 @@ describe("POST /api/cortex — CSRF Protection", () => {
       "https://evil.com",
       "localhost:3000"
     );
-    const res = await POST(req as any);
+    const res = await POST(req);
     expect(res.status).toBe(403);
     const json = await res.json();
     expect(json.error).toContain("Forbidden");
@@ -60,7 +60,7 @@ describe("POST /api/cortex — CSRF Protection", () => {
     });
     // This documents the KNOWN BUG: null origin is currently allowed
     // After fix, this should return 403
-    const res = await POST(req as any);
+    const res = await POST(req);
     // Currently passes (bug) — test documents the behavior
     expect([200, 403]).toContain(res.status);
   });
@@ -71,7 +71,7 @@ describe("POST /api/cortex — CSRF Protection", () => {
       "http://localhost:3000",
       "localhost:3000"
     );
-    const res = await POST(req as any);
+    const res = await POST(req);
     expect(res.status).toBe(200);
   });
 });
@@ -92,7 +92,7 @@ describe("POST /api/cortex — Fallback Local Reasoning Engine", () => {
       },
       "http://localhost:3000"
     );
-    const res = await POST(req as any);
+    const res = await POST(req);
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.role).toBe("cortex");
@@ -111,7 +111,7 @@ describe("POST /api/cortex — Fallback Local Reasoning Engine", () => {
       },
       "http://localhost:3000"
     );
-    const res = await POST(req as any);
+    const res = await POST(req);
     const json = await res.json();
     expect(json.charts[0]?.type).toBe("bar");
   });
@@ -124,7 +124,7 @@ describe("POST /api/cortex — Fallback Local Reasoning Engine", () => {
       },
       "http://localhost:3000"
     );
-    const res = await POST(req as any);
+    const res = await POST(req);
     const json = await res.json();
     expect(json.content).toContain("Halftime");
     expect(json.charts[0]?.type).toBe("area");
@@ -138,7 +138,7 @@ describe("POST /api/cortex — Fallback Local Reasoning Engine", () => {
       },
       "http://localhost:3000"
     );
-    const res = await POST(req as any);
+    const res = await POST(req);
     const json = await res.json();
     expect(json.content).toContain("Staff");
     expect(json.charts[0]?.keys).toContain("staffed");
@@ -152,7 +152,7 @@ describe("POST /api/cortex — Fallback Local Reasoning Engine", () => {
       },
       "http://localhost:3000"
     );
-    const res = await POST(req as any);
+    const res = await POST(req);
     const json = await res.json();
     expect(json.content).toContain("Eco Score");
     expect(json.charts.length).toBeGreaterThan(0);
@@ -166,7 +166,7 @@ describe("POST /api/cortex — Fallback Local Reasoning Engine", () => {
       },
       "http://localhost:3000"
     );
-    const res = await POST(req as any);
+    const res = await POST(req);
     const json = await res.json();
     expect(json.role).toBe("cortex");
     expect(json.content).toBeTruthy();
@@ -178,7 +178,7 @@ describe("POST /api/cortex — Fallback Local Reasoning Engine", () => {
       { messages: baseMessages, context: baseContext },
       "http://localhost:3000"
     );
-    const res = await POST(req as any);
+    const res = await POST(req);
     const json = await res.json();
     expect(json.role).toBe("cortex");
   });
@@ -191,7 +191,7 @@ describe("POST /api/cortex — Fallback Local Reasoning Engine", () => {
       },
       "http://localhost:3000"
     );
-    const res = await POST(req as any);
+    const res = await POST(req);
     const json = await res.json();
     expect(Array.isArray(json.charts)).toBe(true);
     expect(Array.isArray(json.actions)).toBe(true);
@@ -212,7 +212,7 @@ describe("POST /api/cortex — Error Handling", () => {
       headers,
       body: "{ this is not valid json }",
     });
-    const res = await POST(req as any);
+    const res = await POST(req);
     expect(res.status).toBe(400);
   });
 
@@ -225,7 +225,7 @@ describe("POST /api/cortex — Error Handling", () => {
       headers,
       body: "bad json",
     });
-    const res = await POST(req as any);
+    const res = await POST(req);
     const json = await res.json();
     expect(json.error).toBeDefined();
   });
@@ -242,7 +242,7 @@ describe("POST /api/cortex — Gemini Integration (mocked)", () => {
       { messages: baseMessages, context: baseContext },
       "http://localhost:3000"
     );
-    const res = await POST(req as any);
+    const res = await POST(req);
     // Should gracefully fall back — not 500
     expect([200, 500]).toContain(res.status);
     vi.stubEnv("GEMINI_API_KEY", "");
@@ -271,7 +271,7 @@ describe("POST /api/cortex — Gemini Integration (mocked)", () => {
       { messages: baseMessages, context: baseContext },
       "http://localhost:3000"
     );
-    const res = await POST(req as any);
+    const res = await POST(req);
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.content).toContain("Gate A");

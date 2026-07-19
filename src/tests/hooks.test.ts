@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useCortexSimulation } from "../hooks/useCortexSimulation";
@@ -15,7 +15,7 @@ describe("Hooks - useCortexSimulation", () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    (useCortexStore as any).mockReturnValue({
+    (useCortexStore as vi.Mock).mockReturnValue({
       startSimulation: mockStartSimulation,
       stopSimulation: mockStopSimulation,
       tickAsync: mockTick,
