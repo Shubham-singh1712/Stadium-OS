@@ -477,4 +477,25 @@ describe("CortexStore — tick() engine", () => {
     useCortexStore.getState().tick();
     expect(useCortexStore.getState().activeScenario).toBeNull();
   });
+
+  describe("assignStaffToZone", () => {
+    it("should successfully reduce occupancy and register task/memory events", () => {
+      const initialZones = useCortexStore.getState().zones;
+      const gateB = initialZones.find(z => z.name === "Gate B");
+      expect(gateB).toBeDefined();
+      const initialCurrent = gateB!.current;
+
+      useCortexStore.getState().assignStaffToZone("Gate B");
+
+      const updatedGateB = useCortexStore.getState().zones.find(z => z.name === "Gate B");
+      expect(updatedGateB!.current).toBe(Math.floor(initialCurrent * 0.7));
+
+      const memory = useCortexStore.getState().cortexMemory;
+      expect(memory.some(m => m.action === "Assigned Staff to Gate B")).toBe(true);
+
+      const volunteerTasks = useVolunteerStore.getState().tasks;
+      expect(volunteerTasks.some(t => t.title === "Staff Deployment — Gate B")).toBe(true);
+    });
+  });
 });
+

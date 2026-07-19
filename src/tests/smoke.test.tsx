@@ -85,6 +85,7 @@ const mockStoreState = {
   setProtocolStatus: vi.fn(),
   cancelProtocol: vi.fn(),
   autoAssignStaff: vi.fn(),
+  assignStaffToZone: vi.fn(),
   activateGreenMenu: vi.fn(),
   dimArenaLights: vi.fn(),
   rerouteShuttles: vi.fn(),
